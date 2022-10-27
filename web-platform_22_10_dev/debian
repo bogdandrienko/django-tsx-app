@@ -1,0 +1,14 @@
+su
+
+sudo nano /etc/apt/sources.list
+
+# /etc/apt/sources.list
+# <file>
+deb http://deb.debian.org/debian bullseye main
+deb-src http://deb.debian.org/debian bullseye main
+# </file>
+
+sudo apt update -y && sudo apt install openssh-server docker-compose python3-dev python3-pip python3-venv -y
+sudo systemctl start ssh && sudo systemctl restart ssh
+
+ip a
