@@ -1,12 +1,17 @@
-from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, re_path
 from django_app import views
 
-# app_name = 'django_app'
+app_name = 'django_app'
 urlpatterns = [
     path('', views.index, name=''),
     path('index/', views.index, name='index'),
     path('home/', views.index, name='home'),
+
+    re_path(r'^captcha/$', views.captcha, name='captcha'),
+    re_path(r'^token/$', views.token, name='token'),
+
+    re_path(r'^todo/$', views.todo, name='todo'),  # GET(all) / POST
+    re_path(r'^todo/(?P<pk>\d+)/$', views.todo, name='todo_pk'),  # GET(one) / PUT (PATCH) / DELETE
 
     # path('task_mvt/', views.task_mvt_home, name='task_mvt_home'),
     # path('task_mvt/list/', views.task_mvt_home, name='task_mvt_read_list'),

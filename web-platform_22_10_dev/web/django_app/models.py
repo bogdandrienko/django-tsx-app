@@ -1,11 +1,112 @@
-from django.db import models
+import time
 
-# Create your models here.
-
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User, Group
 from django.core.validators import MinLengthValidator, MaxLengthValidator, FileExtensionValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.baseconv import base64
+
+
+# Create your models here.
+
+class TokenModel(models.Model):
+    """
+    Модель, которая содержит токен пользователя django
+    """
+
+    user = models.OneToOneField(
+        db_column='user_db_column',
+        db_index=True,
+        db_tablespace='user_db_tablespace',
+        error_messages=False,
+        primary_key=False,
+        unique=True,
+        editable=True,
+        blank=True,
+        null=True,
+        default=None,
+        verbose_name='Пользователь',
+        help_text='<small class="text-muted">OneToOneField</small><hr><br>',
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='token_user',
+    )
+    token = models.SlugField(
+        db_column='token_db_column',
+        db_index=True,
+        db_tablespace='token_db_tablespace',
+        error_messages=False,
+        primary_key=False,
+        validators=[MinLengthValidator(0), MaxLengthValidator(300), ],
+        unique=False,
+        editable=True,
+        blank=True,
+        null=True,
+        default='',
+        verbose_name='Токен',
+        help_text='<small class="text-muted">SlugField [0, 300]</small><hr><br>',
+
+        max_length=300,
+        allow_unicode=False,
+    )
+    created = models.DateTimeField(
+        db_column='created_db_column',
+        db_index=True,
+        db_tablespace='created_db_tablespace',
+        error_messages=False,
+        primary_key=False,
+        unique=False,
+        editable=True,
+        blank=True,
+        null=True,
+        default=timezone.now,
+        verbose_name='Дата и время создания',
+        help_text='<small class="text-muted">DateTimeField</small><hr><br>',
+
+        auto_now=False,
+        auto_now_add=False,
+    )
+    updated = models.DateTimeField(
+        db_column='updated_db_column',
+        db_index=True,
+        db_tablespace='updated_db_tablespace',
+        error_messages=False,
+        primary_key=False,
+        unique=False,
+        editable=True,
+        blank=True,
+        null=True,
+        default=timezone.now,
+        verbose_name='Дата и время обновления',
+        help_text='<small class="text-muted">DateTimeField</small><hr><br>',
+
+        auto_now=False,
+        auto_now_add=False,
+    )
+
+    class Meta:
+        app_label = 'django_app'
+        ordering = ('-updated',)
+        verbose_name = 'Токен'
+        verbose_name_plural = 'Admin 7, Токены'
+        db_table = 'django_app_token_model_table'
+
+    def __str__(self):
+        return f"{self.user} | {self.created} | {self.updated}"
+
+    @staticmethod
+    def create_token(user: User) -> str:
+        token = make_password(f"{user.username}{user.password}_{time.strftime('%Y-%m-%d %H:%M:%S')}")
+        token_obj = TokenModel.objects.get_or_create(user=user)[0]
+        token_obj.token = token
+        token_obj.save()
+        return token
+
+    @staticmethod
+    def check_token(token: str) -> User:
+        token = TokenModel.objects.get(token=token)
+        return token.user
 
 # from backend.models import UserModel, GroupModel, ActionModel, LoggingModel
 #

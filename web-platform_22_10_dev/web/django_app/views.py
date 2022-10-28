@@ -1,7 +1,12 @@
 import re
+import time
+import random
+
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework import status
@@ -11,7 +16,9 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from django_app import models as django_models, serializers as django_serializers, utils as django_utils
 
-http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+from django_drf_todo_list import models, serializers
+
+http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
 
 # Create your views here.
@@ -26,7 +33,230 @@ def index(request):
         return django_utils.DjangoClass.DRFClass.RequestClass.return_global_error(request=request, error=error)
 
 
+def get_value(request: HttpRequest, key: str, _type: any, default: any) -> any:
+    value = request.data.get(key, default)
+    if value == 'null' or value is None:
+        return None
+    elif value == 'true' or value is True:
+        return True
+    elif value == 'false' or value is False:
+        return False
+    else:
+        if _type is bool:
+            return bool(value)
+        elif _type is str:
+            return str(value).strip()
+        elif _type is int:
+            return int(value)
+        elif _type is float:
+            return float(value)
+        else:
+            return value
 
+
+def get_param(request: HttpRequest, key: str, _type: any, default: any) -> any:
+    value = request.GET.get(key, default)
+    if value == 'null' or value is None:
+        return None
+    elif value == 'true' or value is True:
+        return True
+    elif value == 'false' or value is False:
+        return False
+    else:
+        if _type is bool:
+            return bool(value)
+        elif _type is str:
+            return str(value).strip()
+        elif _type is int:
+            return int(value)
+        elif _type is float:
+            return float(value)
+        else:
+            return value
+
+
+def get_file(request: HttpRequest, key: str, _type: any, default: any) -> any:
+    value = request.FILES.get(key, default)
+    if value == 'null' or value is None:
+        return None
+    elif value == 'true' or value is True:
+        return True
+    elif value == 'false' or value is False:
+        return False
+    else:
+        if _type is bool:
+            return bool(value)
+        elif _type is str:
+            return str(value).strip()
+        elif _type is int:
+            return int(value)
+        elif _type is float:
+            return float(value)
+        else:
+            return value
+
+
+def paginate(page: int, objects: any, limit: int) -> any:
+    paginator = Paginator(objects, limit)
+    try:
+        page = paginator.page(page)
+    except PageNotAnInteger:
+        page = paginator.page(1)
+    except EmptyPage:
+        page = paginator.page(paginator.num_pages)
+    return page
+
+
+@api_view(http_method_names=[http_method_names])
+def captcha(request: HttpRequest) -> Response:
+    if request.method == "GET":
+        time.sleep(round(random.uniform(1.0, 2.5), 2))
+        response = {
+            "data": "Вы не робот!"
+        }
+        return Response(data={"response": response}, status=status.HTTP_200_OK)
+    return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(http_method_names=[http_method_names])
+def token(request: HttpRequest) -> Response:
+    if request.method == "POST":
+        time.sleep(round(random.uniform(1.0, 2.5), 2))
+
+        is_authenticated = authenticate(username=username, password=password)
+        if is_authenticated is not None:
+            user = User.objects.get(username=username)
+            user_model = backend_models.UserModel.objects.get(user=user)
+            if user_model.is_active_account is False:
+                return Response({"error": "Внимание, Ваш аккаунт заблокирован!"})
+            update_last_login(sender=None, user=user)
+            refresh = RefreshToken.for_user(user=user)
+            response = {"response": {
+                "token": str(refresh.access_token),
+                "full name": f"{user_model.last_name} {user_model.first_name}"
+            }}
+
+        response = {
+            "data": "Вы не робот!"
+        }
+        return Response(data={"response": response}, status=status.HTTP_200_OK)
+    return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+
+
+
+@api_view(http_method_names=[http_method_names])
+def todo(request: HttpRequest, pk=0) -> Response:
+    try:
+        time.sleep(round(random.uniform(1.0, 2.5), 2))
+
+        # TODO Извлечение из "request: HttpRequest" нужных полей
+        print('data: ', request.data)  # POST: JSON | POST: FormData
+        print('GET: ', request.GET)  # GET: url
+        print('POST: ', request.POST)  # POST: FormData
+        print('FILES: ', request.FILES)  # POST: FormData
+
+        print('method: ', request.method)
+        print('action: ', request.META.get("HTTP_AUTHORIZATION", "action=0;token=0;").split('action=')[1].split(';')[0])
+        print('path: ', request.path)
+        print('ip: ', request.META.get("REMOTE_ADDR"))
+
+        # TODO create and return token
+        # user_obj = User.objects.get(id=1)
+        # token_str = django_models.TokenModel.create_token(user=user_obj)
+        # print('token_str: ', token_str)
+
+        # TODO check token and return User
+        # token_str = "pbkdf2_sha256$390000$U6N0MNpN7GSK6DFlFp2RiB$zL6Nrel3oUxMFCgd+qLBZK/7TrvLqrwCaF75ruUZPr0="
+        # user_obj = django_models.TokenModel.check_token(token=token_str)
+        # print('user_obj: ', user_obj)
+
+        # TODO Определение пользователя по токену (нужно/не нужно в конструкторе декоратора)
+        auth = False
+        if auth is True:
+            try:
+                # token = request.META.get("HTTP_AUTHORIZATION", "action=0;token=0;").split('token=')[1].split(';')[0]
+                # user = backend_models.TokenModel.objects.get(token=token).user
+                # user_model = backend_models.UserModel.objects.get(user=user)
+                pass
+            except Exception as error:
+                return Response(data={"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            token = None
+            user = None
+            user_model = None
+        # TODO Логирование действий
+        # TODO
+
+        print('\n\n\n**********\n\n\n')
+        title = get_value(request=request, key="title", _type=str, default=None)
+        print(f"title({type(title)}): ", title)
+        print('\n\n\n**********\n\n\n')
+
+        print('\n\n\n**********\n\n\n')
+        age = get_value(request=request, key="age", _type=int, default=None)
+        print(f"age({type(age)}): ", age)
+        print('\n\n\n**********\n\n\n')
+
+        if pk:
+            if request.method == "GET":
+                todo_obj = models.Todo.objects.get(id=pk)
+                response = serializers.TodoSerializer(todo_obj, many=False).data
+                # TODO Успешный ответ сервера "HTTP_200_OK" / "HTTP_201_CREATED"
+                return Response(data={"response": response}, status=status.HTTP_200_OK)
+            elif request.method == "PUT" or request.method == "PATCH":
+                title = get_value(request=request, key="title", _type=str, default=None)
+                description = get_value(request=request, key="description", _type=str, default=None)
+
+                todo_obj = models.Todo.objects.get(id=pk)
+                if title is not None and todo_obj.title != title:
+                    todo_obj.title = title
+                if description is not None and todo_obj.description != description:
+                    todo_obj.description = description
+                todo_obj.save()
+                # TODO Успешный ответ сервера "HTTP_200_OK" / "HTTP_201_CREATED"
+                return Response(data={"response:": "Successfully update"}, status=status.HTTP_200_OK)
+            elif request.method == "DELETE":
+                todo_obj = models.Todo.objects.get(id=pk)
+                todo_obj.delete()
+                # TODO Успешный ответ сервера "HTTP_200_OK" / "HTTP_201_CREATED"
+                return Response(data={"response:": "Successfully delete"}, status=status.HTTP_200_OK)
+        else:
+            if request.method == "GET":
+                page = get_param(request=request, key="page", _type=int, default=1)
+                limit = get_param(request=request, key="limit", _type=int, default=10)
+
+                todos_obj = models.Todo.objects.all()
+                todos_obj = paginate(page=page, objects=todos_obj, limit=limit)
+                response = serializers.TodoSerializer(todos_obj, many=True).data
+                # TODO Успешный ответ сервера "HTTP_200_OK" / "HTTP_201_CREATED"
+                return Response(data={"response": response}, status=status.HTTP_200_OK)
+            elif request.method == "POST":
+                title = get_value(request=request, key="title", _type=str, default=None)
+                description = get_value(request=request, key="description", _type=str, default="")
+
+                # avatar = get_file(request=request, key="avatar", _type=any, default=None)
+
+                if title:
+                    models.Todo.objects.create(
+                        title=title,
+                        description=description
+                    )
+                    # TODO Успешный ответ сервера "HTTP_200_OK" / "HTTP_201_CREATED"
+                    return Response(data={"response:": "Successfully create"}, status=status.HTTP_201_CREATED)
+                else:
+                    # TODO Возврат ошибки сервера "HTTP_400_BAD_REQUEST" с описанием ошибки
+                    return Response(data={"error:": "Not have data"}, status=status.HTTP_400_BAD_REQUEST)
+        # TODO Возврат ошибки сервера "HTTP_405_METHOD_NOT_ALLOWED" при несовпадении метода и/или действия
+        return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    # TODO Поимка исключений и возврат ошибки сервера "HTTP_400_BAD_REQUEST" с описанием ошибки
+    except Exception as error:
+        # TODO Логирование ошибок
+        # TODO
+        if settings.DEBUG:
+            print(f"error {error}")
+        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Django:

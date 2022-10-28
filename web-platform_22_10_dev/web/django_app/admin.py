@@ -1,6 +1,51 @@
 from django.contrib import admin
+from django_app import models as django_models, serializers as django_serializers, utils as django_utils
 
 # Register your models here.
+
+
+class TokenModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'TokenModel' на панели администратора
+    """
+
+    list_display = (
+        'user',
+        'token',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'user',
+        'token',
+        'created'
+    )
+    list_editable = (
+        'updated',
+    )
+    list_filter = (
+        'user',
+        'token',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'user',
+            'token',
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'user',
+        'token',
+        'created',
+        'updated'
+    ]
+
+
+admin.site.register(django_models.TokenModel, TokenModelAdmin)
 
 # from backend_native.models import IdeaTestCommentModel, IdeaTestModel, IdeaTestRatingModel
 #
