@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'django_app',
+    'django_drf_todo_list',
+    'django_mvt_todo_list',
 ]
 
 MIDDLEWARE = [
@@ -85,8 +87,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'django.template.context_processors.request',
-
-                'django_app.context_processors.get_users_count',
+                'django_mvt_todo_list.context_processors.todo_count',
             ],
         },
     },
@@ -203,12 +204,14 @@ if DEBUG:
         Path(BASE_DIR, 'static_external'),
         Path(BASE_DIR, 'frontend/public/static'),
         Path(BASE_DIR, 'frontend/build/static'),
+        Path(BASE_DIR, 'django_mvt_todo_list/static'),
     ]
 else:
     STATIC_ROOT = Path(BASE_DIR, 'static')
     STATICFILES_DIRS = [
         Path(BASE_DIR, 'static_external'),
         Path(BASE_DIR, 'frontend/build/static'),
+        Path(BASE_DIR, 'django_mvt_todo_list/static'),
     ]
 
 # heroku

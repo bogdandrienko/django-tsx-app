@@ -24,6 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', include('django_app.urls')),
+    path('django_drf_todo_list/', include('django_drf_todo_list.urls')),
+    path('django_mvt_todo_list/', include('django_mvt_todo_list.urls')),
     path('api-auth/', include('rest_framework.urls'))
 ]
 

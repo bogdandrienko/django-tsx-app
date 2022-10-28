@@ -85,9 +85,6 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
       </Routes>
     </BrowserRouter>
-    // <div className="App">
-    //     <Home/>
-    // </div>
   );
 }
 
