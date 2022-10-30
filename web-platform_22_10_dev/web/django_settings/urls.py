@@ -24,9 +24,9 @@ urlpatterns = [
     path('grappelli/', include('grappelli.urls')),  # grappelli URLS
     path('admin/', admin.site.urls),
 
-    path('', views.index, name=''),
-    path('index/', views.index, name='index'),
-    path('home/', views.index, name='home'),
+    path('', views.index_f, name=''),
+    path('index/', views.index_f, name='index'),
+    path('home/', views.index_f, name='home'),
     path('api/', include('django_app.urls')),
 
     # path('django_drf_todo_list/', include('django_drf_todo_list.urls')),

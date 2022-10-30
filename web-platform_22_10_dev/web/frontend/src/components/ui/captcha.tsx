@@ -20,7 +20,7 @@ export const Captcha1 = () => {
   const dispatch = useDispatch();
 
   //const captchaCheck = hook.useSelectorCustom2(slice.captcha.captchaCheckStore);
-  const captchaCheck = {data: undefined, load: undefined, error: undefined}
+  const captchaCheck = { data: undefined, load: undefined, error: undefined };
 
   useEffect(() => {
     if (captchaCheck.data) {
@@ -33,55 +33,67 @@ export const Captcha1 = () => {
   }, [captchaCheck.data]);
 
   async function Check(event: MouseEvent<HTMLDivElement>) {
-
     // Equivalent to `axios.get('https://httpbin.org/get?answer=42')`
-//     const res = await axios.get('https://httpbin.org/get', { params: { answer: 42 } });
-
-//     const params = new URLSearchParams([['answer', 42]]);
-//     const res = await axios.get('https://httpbin.org/get', { params });
-
-    const action = "GetOneTodo"
-    const token = "12345Qw!"
+    //     const res = await axios.get('https://httpbin.org/get', { params: { answer: 42 } });
+    //     const params = new URLSearchParams([['answer', 42]]);
+    //     const res = await axios.get('https://httpbin.org/get', { params });
+    // const action = "GetOneTodo"
+    // const token = "12345Qw!"
+    // const config = {
+    //   url: `api/todo/?page=1&limit=10`,
+    //   method: `GET`,
+    //   timeout: 3000,
+    //   headers: {
+    //     Authorization: `action=${action};token=${token};`,
+    //     'Content-Type': 'application/json',
+    //     'X-Requested-With': 'XMLHttpRequest',
+    //   },
+    //   data: {},
+    // };
+    // const response = await axios(config)
+    // console.log("response: ", response)
+    //
+    // const formData = new FormData();
+    // const config = {
+    //   url: `api/captcha/`,
+    //   method: `GET`,
+    //   timeout: 3000,
+    //   headers: {
+    //     Authorization: `Bearer 12345Qw!`,
+    //   },
+    //   data: formData,
+    // };
+    // const response = await axios(config);
+    // console.log("response: ", response);
+    //
+    const formData = new FormData();
+    formData.append("action", "Send Mail");
+    formData.append("title", "11111111111");
+    formData.append("description", "22222222222222");
+    // @ts-ignore
+    formData.append("is_completed", true);
     const config = {
-      url: `api/todo/?page=1&limit=10`,
-      method: `GET`,
+      url: `api/todo/?action=Send Mail`,
+      method: `POST`,
       timeout: 3000,
       headers: {
-        Authorization: `action=${action};token=${token};`,
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
+        Authorization: `action=_;token=12345Qw!;`,
       },
-      data: {},
+      data: formData,
     };
-    const response = await axios(config)
-    console.log("response: ", response)
-
-//     const formData = new FormData();
-//     formData.append('title', '11111111111')
-//     formData.append('age', '22')
-//     const config = {
-//       url: `api/todo/`,
-//       method: `POST`,
-//       timeout: 3000,
-//       headers: {
-//         Authorization: `Bearer 12345Qw!`,
-//       },
-//       data: formData, // data: {'title': '11111111111'},
-//     };
-//     const response = await axios(config)
-//     console.log("response: ", response)
-
-
-//     util.EventMouse1(event, true, true, () => {
-//       // dispatch(slice.captcha.captchaCheckStore.action({}));
-//       dispatch(
-//         slice.captcha.captchaCheckStore.action({
-//           id: 12,
-//           form: { search: "1234" },
-//         })
-//       );
-//       // dispatch(action.captcha.captchaCheckStore(1, { name: "00000000" }));
-//     });
+    const response = await axios(config);
+    console.log("response: ", response);
+    //
+    // util.EventMouse1(event, true, true, () => {
+    //   // dispatch(slice.captcha.captchaCheckStore.action({}));
+    //   dispatch(
+    //     slice.captcha.captchaCheckStore.action({
+    //       id: 12,
+    //       form: { search: "1234" },
+    //     })
+    //   );
+    //   // dispatch(action.captcha.captchaCheckStore(1, { name: "00000000" }));
+    // });
   }
 
   // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////

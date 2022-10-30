@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django_app import models as django_models, serializers as django_serializers, utils as django_utils
 
+
 # Register your models here.
 
 
@@ -46,6 +47,249 @@ class TokenModelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(django_models.TokenModel, TokenModelAdmin)
+
+
+class TodoAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'Todo' на панели администратора
+    """
+
+    list_display = (
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'title',
+        'description',
+    )
+    list_editable = (
+        'is_completed',
+    )
+    list_filter = (
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'title',
+            'description',
+            'avatar',
+            'is_completed',
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    ]
+
+
+admin.site.register(django_models.Todo, TodoAdmin)
+
+
+class ResultListAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'ResultList' на панели администратора
+    """
+
+    list_display = (
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'user',
+        'title',
+    )
+    list_editable = (
+        'is_pay',
+    )
+    list_filter = (
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'user',
+            'title',
+            'description',
+            'is_pay',
+            'addiction_file_field',
+        )}),
+        ('Дополнительное', {'fields': (
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    ]
+
+
+admin.site.register(django_models.ResultList, ResultListAdmin)
+
+
+class UserModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'UserModel' на панели администратора
+    """
+
+    # list_display = (
+    #     'user',
+    # )
+    # list_display_links = (
+    #     'user',
+    # )
+    # list_editable = (
+    #     'user',
+    # )
+    # list_filter = (
+    #     'user',
+    # )
+    # filter_horizontal = (
+    #     'users',
+    # )
+    # fieldsets = (
+    #     ('Основное', {'fields': (
+    #         'user',
+    #     )}),
+    # )
+    # search_fields = [
+    #     'user',
+    # ]
+
+    list_display = (
+        'user',
+        'is_active_account',
+        'email',
+        'secret_question',
+        'secret_answer',
+        'is_temp_password',
+        'last_name',
+        'first_name',
+        'patronymic',
+        'personnel_number',
+        'subdivision',
+        'workshop_service',
+        'department_site',
+        'position',
+        'category',
+        'education',
+        'achievements',
+        'biography',
+        'hobbies',
+        'image',
+    )
+    list_display_links = (
+        'user',
+        'last_name',
+        'first_name',
+        'patronymic',
+    )
+    list_editable = (
+        'is_active_account',
+    )
+    list_filter = (
+        'user',
+        'is_active_account',
+        'email',
+        'secret_question',
+        'secret_answer',
+        'is_temp_password',
+        'last_name',
+        'first_name',
+        'patronymic',
+        'personnel_number',
+        'subdivision',
+        'workshop_service',
+        'department_site',
+        'position',
+        'category',
+        'education',
+        'achievements',
+        'biography',
+        'hobbies',
+        'image',
+    )
+    filter_horizontal = (
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'user',
+            'is_active_account',
+            'email',
+            'secret_question',
+            'secret_answer',
+            'is_temp_password',
+            'last_name',
+            'first_name',
+            'patronymic',
+            'personnel_number',
+            'subdivision',
+            'workshop_service',
+            'department_site',
+            'position',
+            'category',
+            'education',
+            'achievements',
+            'biography',
+            'hobbies',
+            'image',
+        )}),
+    )
+    search_fields = [
+        'user',
+        'is_active_account',
+        'email',
+        'secret_question',
+        'secret_answer',
+        'is_temp_password',
+        'last_name',
+        'first_name',
+        'patronymic',
+        'personnel_number',
+        'subdivision',
+        'workshop_service',
+        'department_site',
+        'position',
+        'category',
+        'education',
+        'achievements',
+        'biography',
+        'hobbies',
+        'image',
+    ]
+
+
+admin.site.register(django_models.UserModel, UserModelAdmin)
 
 # from backend_native.models import IdeaTestCommentModel, IdeaTestModel, IdeaTestRatingModel
 #
@@ -195,4 +439,3 @@ admin.site.register(django_models.TokenModel, TokenModelAdmin)
 #
 #
 # admin.site.register(IdeaTestRatingModel, IdeaRatingModelAdmin)
-

@@ -3,15 +3,18 @@ from django_app import views
 
 app_name = 'django_app'
 urlpatterns = [
-    path('', views.index, name=''),
-    path('index/', views.index, name='index'),
-    path('home/', views.index, name='home'),
+    path('', views.index_f, name=''),
+    path('index/', views.index_f, name='index'),
+    path('home/', views.index_f, name='home'),
 
-    re_path(r'^captcha/$', views.captcha, name='captcha'),
-    re_path(r'^token/$', views.token, name='token'),
+    re_path(r'^captcha/$', views.captcha_f, name='captcha'),
+    re_path(r'^token/$', views.token_f, name='token'),
 
-    re_path(r'^todo/$', views.todo, name='todo'),  # GET(all) / POST
-    re_path(r'^todo/(?P<pk>\d+)/$', views.todo, name='todo_pk'),  # GET(one) / PUT (PATCH) / DELETE
+    re_path(r'^todo/(?P<pk>\d+)/$', views.todo_f, name='todo_pk'),
+    re_path(r'^todo/$', views.todo_f, name='todo'),
+
+    re_path(r'^result/(?P<pk>\d+)/$', views.result_f, name='result_pk'),
+    re_path(r'^result/$', views.result_f, name='result'),
 
     # path('task_mvt/', views.task_mvt_home, name='task_mvt_home'),
     # path('task_mvt/list/', views.task_mvt_home, name='task_mvt_read_list'),

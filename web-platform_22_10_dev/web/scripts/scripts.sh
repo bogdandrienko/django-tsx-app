@@ -51,16 +51,19 @@ nvm install 18.10.0
 nvm use 18.10.0
 # node js
 
-# sudo rm ./home/new.txt
-# nano django_settings/settings.py
+# extra
+#sudo rm ./home/new.txt
+#nano django_settings/settings.py
+# extra
+
 ########################################################################################################################
 
 ########################################################################################################################
 WINDOWS 10
 ##########
 
-update
-DWS and SSD Mini Tweaker
+update system
+install DWS and SSD Mini Tweaker
 insert guest-additions and install
 install all need programs
 
@@ -72,11 +75,11 @@ move frontend/build react
 # clear and create build folder
 
 # extra
-chdir frontend
-set /p app_name= "Please enter the 'frontend' folder name:  "
-IF "%app_name%"=="" (set app_name="frontend")
-django-admin startapp %app_name%
-call cmd
+#chdir frontend
+#set /p app_name= "Please enter the 'frontend' folder name:  "
+#IF "%app_name%"=="" (set app_name="frontend")
+#django-admin startapp %app_name%
+#call cmd
 # extra
 
 ########################################################################################################################
@@ -100,11 +103,41 @@ POSTGRESQL
 ##########
 
 # linux
+sudo apt update -y
+sudo apt install -y postgresql postgresql-contrib
+sudo passwd postgres
+sudo -i -u postgres
 sudo su - postgres
-createuser dbdjango
-createdb djangodb -O dbdjango
-psql djangodb
-alter user dbdjango with password '12345678Django$';
+createuser django_user
+createdb django_database -O django_user
+psql django_database
+#CREATE USER django_usr WITH PASSWORD '31284bogdan';
+#CREATE DATABASE django_database OWNER django_user;
+#ALTER ROLE django_usr SET client_encoding TO 'utf8';
+#ALTER ROLE django_usr SET default_transaction_isolation TO 'read committed';
+#ALTER ROLE django_usr SET timezone TO 'UTC';
+#GRANT ALL PRIVILEGES ON DATABASE django_db TO django_usr;
+alter user django_user with password '12345Qwerty!';
+\q
+exit
+
+sudo systemctl stop postgresql
+sudo systemctl status postgresql
+sudo systemctl restart postgresql
+
+sudo -i -u postgres
+psql
+\connect django_database
+
+CREATE TABLE zarplata (
+	id serial PRIMARY KEY,
+	username VARCHAR ( 50 ) UNIQUE NOT NULL,
+	salary INT
+);
+
+select * from zarplata;
+
+insert into zarplata (username, salary) VALUES ('Bogdan', '60000'), ('Alice', '80000');
 \q
 exit
 # linux
@@ -114,17 +147,6 @@ exit
 ########################################################################################################################
 PIP
 ###
-
-# windows 10
-python.exe -m pip install --upgrade pip
-pip install env
-mkdir web
-chdir web
-python -m venv env
-call .\env\Scripts\activate.bat
-python.exe -m pip install --upgrade pip
-pip install Django
-# windows 10
 
 # linux
 cd ~
@@ -136,6 +158,17 @@ python3 -m venv env
 source env/bin/activate
 python3 -m pip3 install --upgrade pip
 # linux
+
+# windows 10
+python.exe -m pip install --upgrade pip
+pip install env
+mkdir web
+chdir web
+python -m venv env
+call .\env\Scripts\activate.bat
+python.exe -m pip install --upgrade pip
+pip install Django
+# windows 10
 
 ########################################################################################################################
 
@@ -178,10 +211,10 @@ npm install react-router-bootstrap
 npm install react-player
 
 # extra
-npm start
-npm run build
-npm init
-npm i
+#npm start
+#npm run build
+#npm init
+#npm i
 # extra
 
 ########################################################################################################################
@@ -233,8 +266,8 @@ sudo systemctl enable --now gunicorn.service
 sudo systemctl daemon-reload
 sudo systemctl restart gunicorn
 sudo systemctl status gunicorn.service
-# sudo systemctl disable gunicorn
-# sudo systemctl stop gunicorn
+#sudo systemctl disable gunicorn
+#sudo systemctl stop gunicorn
 
 ########################################################################################################################
 
@@ -415,21 +448,8 @@ sudo certbot renew --dry-run
 </file>
 
 ########################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# https://realpython.com/asynchronous-tasks-with-django-and-celery/
+CELERY
+######
 
 # shell
 sudo apt update -y
@@ -440,19 +460,13 @@ ping # PONG
 exit
 # shell
 
-
-
 source env/bin/activate
 pip install celery redis django
 pip freeze > requirements.txt
 
-
-
-
 # django_setting/celery.py
 import os
 from celery import Celery
-
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings.settings")
 app = Celery("django_settings")
@@ -460,15 +474,11 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 # django_setting/celery.py
 
-
-
 # django_setting/__init__.py
 from .celery import app as celery_app
 
 __all__ = ("celery_app",)
 # django_setting/__init__.py
-
-
 
 # django_setting/settings.py
 CELERY_APP_TIMEZONE = 'Asia/Almaty'
@@ -481,26 +491,20 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379"
 # CELERY_RESULT_BACKEND = "redis://localhost:6379"
 # django_setting/settings.py
 
-
 # sh (env)
 python -m celery -A django_settings worker -l info
 # sh (env)
 
-
-
 # django_app/celery.py
 # parsing(get data from another web-sites), analyze, reports, image refactor, send mass mail
-
 @shared_task
 def add(x, y):
     return x + y
-
 
 @shared_task
 def count_users():
     time.sleep(3.0)
     return User.objects.count()
-
 
 @shared_task
 def send_mass_email(recipients: list, message: dict, skip_error=True):
@@ -524,7 +528,6 @@ def send_mass_email(recipients: list, message: dict, skip_error=True):
     return [(True, ""), (False, "timeout error")]
 # django_app/celery.py
 
-
 # django_app/view.py
 from django_app import celery as current_celery
 from celery.result import AsyncResult
@@ -541,135 +544,30 @@ result = f"status: {result.state} | result: {result.get()}"
 else:
 result = f"status: {result.state} | result: {None}"
 print(result)
-
-
 # django_app/view.py
 
-
-
-# https://sqa-consulting.com/asynchronous-tasks-in-python-with-celery-rabbitmq-redis/  !!! docker + celery
-# https://hub.docker.com/r/eeacms/celery !!! docker + celery
-
-
-#################################################################################
-
-sudo apt update -y
-
-sudo apt install -y postgresql postgresql-contrib
-
-systemctl status postgresql
-
-sudo passwd postgres
-
-sudo -i -u postgres
-
-
-
-createuser django_user
-
-psql
-
-ALTER USER django_user WITH ENCRYPTED password '12345qwerty!';
-
-CREATE DATABASE django_database OWNER django_user;
-
-\q
-
-exit
-
-
-
-sudo systemctl stop postgresql
-
-sudo systemctl status postgresql
-
-sudo systemctl restart postgresql
-
-
-
-sudo -i -u postgres
-
-psql
-
-\connect django_database
-
-
-
-
-
-CREATE TABLE zarplata (
-
-	id serial PRIMARY KEY,
-
-	username VARCHAR ( 50 ) UNIQUE NOT NULL,
-
-	salary INT
-
-);
-
-
-
-
-
-select * from zarplata;
-
-insert into zarplata (username, salary) VALUES ('Bogdan', '60000'), ('Alice', '80000');
-
-
-
-
-
-\q
-
-exit
-
-############################################################################
+########################################################################################################################
+DOCKER
+######
 
 sudo apt-get update -y
-sudo apt upgrade -y
-
- # для входа через ssh
-sudo apt -y install openssh-server
-sudo systemctl start ssh
-sudo systemctl enable ssh
-
-ip a
-
-sudo reboot
-
 sudo apt install -y docker-compose python3-pip python3-venv python3-dev
-
 mkdir web && cd web
-
 python3 -m venv env
 source env/bin/activate
 pip install --upgrade pip
 pip install wheel
-
 pip install Django gunicorn psycopg2 Pillow
-
-pip freeze > requirements.txt
-ls
-
 django-admin startproject django_settings .
-
 django-admin startapp core
-
 cd core
-
 mkdir management && cd management
-
 nano __init__.py       #ctr s ctrl x
-
 mkdir commands && cd commands
-
 nano __init__.py  #ctr s ctrl x
 
 nano wait_for_db.py
-
-
-# внутри файл
-
+# wait_for_db.py
 import time
 from django.db import connections
 from django.db.utils import OperationalError
@@ -690,18 +588,10 @@ class Command(BaseCommand):
                 time.sleep(1)
 
         self.stdout.write(self.style.SUCCESS('Database available!'))
-
-
-# внутри файл
-
-
-#выходим до web папки
+# wait_for_db.py
 
 nano django_settings/settings.py
-
-
-# внутри файл
-
+# settings.py
 import os
 
 DEBUG = os.environ.get("DEBUG", True)
@@ -730,14 +620,10 @@ DATABASES = {
 }
 
 STATIC_ROOT = Path(BASE_DIR/"static")
+# settings.py
 
-# внутри файл
-
-
- nano .env
-
-# внутри файл
-
+nano .env
+# .env
 # django
 DEBUG=1
 
@@ -753,21 +639,13 @@ SQL_PORT=5432
 POSTGRES_DB=django_db
 POSTGRES_USER=django_usr
 POSTGRES_PASSWORD=Qwerty12345!
-
-# внутри файл
-
+# .env
 
 python3 manage.py runserver 0.0.0.0:8000
-
-
 cd ..
 
 nano docker-compose.yml
-
-
-
-# внутри файл
-
+# docker-compose.yml
 version: '3.7'
 
 services:
@@ -809,18 +687,10 @@ volumes:
 networks:
    main:
      driver: bridge
-
-# внутри файл
-
-
-
-
+# docker-compose.yml
 
 nano Dockerfile
-
-
-# внутри файл
-
+# Dockerfile
 FROM python:latest
 
 ENV PYTHONUNBUFFERED 1
@@ -836,14 +706,10 @@ COPY ./web/requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
 WORKDIR /web_build
+# Dockerfile
 
-# внутри файл
-
-
-nano start
-
-
-# внутри файл
+nano start.sh
+# start.sh
 #!/bin/bash
 
 # sudo apt-get install docker-compose -y && sudo apt autoremove -y
@@ -852,44 +718,8 @@ nano start
 sudo docker-compose up --build
 # sudo docker-compose up -d --build
 # sudo docker compose down
+# start.sh
 
-# внутри файл
+source start.sh
 
-
-source start
-
-
-
-http://0.0.0.0:8000/
-
-
-# настройки редис для докера на node.js
-# https://geshan.com.np/blog/2022/01/redis-docker/
-
-
-
-####################################################################################################
-sudo apt-get install postgresql postgresql-contrib -y
-su
-su - postgres
-psql
-CREATE DATABASE django_db;
-CREATE USER django_usr WITH PASSWORD '31284bogdan';
-ALTER ROLE django_usr SET client_encoding TO 'utf8';
-ALTER ROLE django_usr SET default_transaction_isolation TO 'read committed';
-ALTER ROLE django_usr SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE django_db TO django_usr;
-\q
-exit
-
-# INSTALL DJANGO
-sudo apt-get install python3-pip python3-dev python3-venv libpq-dev curl nginx -y
-pip3 install --upgrade pip
-mkdir web
-cd web
-python3 -m venv env
-source env/bin/activate
-pip3 install --upgrade pip
-pip install django gunicorn psycopg2-binary
-django-admin startproject django_settings .
-nano ./django_settings/settings.py
+########################################################################################################################

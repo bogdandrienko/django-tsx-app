@@ -1,6 +1,6 @@
 // TODO download modules ///////////////////////////////////////////////////////////////////////////////////////////////
 
-import React from "react";
+import React, { MouseEvent } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -14,6 +14,7 @@ import * as util from "../components/util";
 
 import * as base from "../components/ui/base";
 import * as captcha from "../components/ui/captcha";
+import axios from "axios";
 
 // TODO export /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +22,7 @@ export default function Page() {
   // TODO store ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //const captchaCheck = hook.useSelectorCustom2(slice.captcha.captchaCheckStore);
-  const captchaCheck = {data: undefined, load: undefined, error: undefined}
+  const captchaCheck = { data: undefined, load: undefined, error: undefined };
 
   // TODO hooks ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +32,11 @@ export default function Page() {
     username: "",
     password: "",
   });
+
+  const [ideaCreateObject, setIdeaCreateObject, resetIdeaCreateObject] =
+    hook.useStateCustom1({
+      avatar: null,
+    });
 
   // TODO functions ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +49,79 @@ export default function Page() {
     if (captchaCheck.data) {
       //dispatch(slice.user.userLoginStore.action({ form: { ...user } }));
     }
+  }
+
+  async function GetOne(event: MouseEvent<any>) {
+    try {
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {}
+    const pk = 1;
+    const action = "GetOneTodo";
+    const token =
+      "pbkdf2_sha256$390000$aWV2vUbGxC6OYns3ZQw5q5$WqX/DUYyjIjA7X42p/paeS9gYlGd3dQsGk+ZUaxdB6Y=";
+    //
+    const formData = new FormData();
+    const config = {
+      url: `api/todo/${pk}/`,
+      method: `GET`,
+      timeout: 5000,
+      headers: {
+        Authorization: `action=${action};token=${token};`,
+      },
+      data: formData,
+    };
+    const response = await axios(config);
+    console.log("GetOne response: ", response);
+  }
+
+  async function GetAll(event: MouseEvent<any>) {
+    try {
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {}
+    const action = "GetAllTodo";
+    const token =
+      "pbkdf2_sha256$390000$aWV2vUbGxC6OYns3ZQw5q5$WqX/DUYyjIjA7X42p/paeS9gYlGd3dQsGk+ZUaxdB6Y=";
+    //
+    const formData = new FormData();
+    const config = {
+      url: `api/todo/?page=${1}&limit=${1}&search=${1}`,
+      method: `GET`,
+      timeout: 5000,
+      headers: {
+        Authorization: `action=${action};token=${token};`,
+      },
+      data: formData,
+    };
+    const response = await axios(config);
+    console.log("GetOne response: ", response);
+  }
+
+  async function POST(event: MouseEvent<any>) {
+    try {
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {}
+    const action = "_";
+    const token =
+      "pbkdf2_sha256$390000$aWV2vUbGxC6OYns3ZQw5q5$WqX/DUYyjIjA7X42p/paeS9gYlGd3dQsGk+ZUaxdB6Y=";
+    //
+    const formData = new FormData();
+    formData.append("title", "11111  111 11");
+    formData.append("description", "11111  111 11");
+    formData.append("avatar", ideaCreateObject.avatar);
+    const config = {
+      url: `api/todo/`,
+      method: `POST`,
+      timeout: 5000,
+      headers: {
+        Authorization: `action=${action};token=${token};`,
+      },
+      data: formData,
+    };
+    const response = await axios(config);
+    console.log("GetOne response: ", response);
   }
 
   // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,6 +158,31 @@ export default function Page() {
             </div>
           </div>
         </header>
+        <div className="container container-fluid m-5 d-flex">
+          <div className="card m-2">
+            <form className="m-0 p-0" onSubmit={POST}>
+              <input
+                type="file"
+                className="form-control form-control-sm text-center m-0 p-1"
+                accept=".jpg, .png"
+                onChange={(event) =>
+                  setIdeaCreateObject({
+                    ...ideaCreateObject,
+                    // @ts-ignore
+                    avatar: event.target.files[0],
+                  })
+                }
+              />
+              <button className="btn btn-sm btn-primary m-1 p-2" type="submit">
+                <i className="fa-solid fa-circle-check m-0 p-1" />
+                GET (one)
+              </button>
+            </form>
+          </div>
+          <div className="card m-2">
+            <button className="btn btn-outline-primary">GET (all)</button>
+          </div>
+        </div>
         <div className="container-fluid">
           <div className="">
             <main className="px-md-4">
