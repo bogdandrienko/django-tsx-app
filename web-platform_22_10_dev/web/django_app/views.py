@@ -678,10 +678,10 @@ def result_f(request: HttpRequest, pk=0) -> Response:
                 title = request.data.get("title", None)
                 description = request.data.get("description", None)
                 if title is None:
-                    return Response(data={"error:": "Not have any data"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(data={"error": "Not have any data"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     django_models.ResultList.objects.create(title=title, description=description)
-                    return Response(data={"response:": "Successfully create"}, status=status.HTTP_201_CREATED)
+                    return Response(data={"response": "Successfully create"}, status=status.HTTP_201_CREATED)
 
         # TODO Возврат ошибки сервера "HTTP_405_METHOD_NOT_ALLOWED" при несовпадении метода и/или действия
         return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -1130,3 +1130,71 @@ def result_f(request: HttpRequest, pk=0) -> Response:
 #         'sorted': sorted_by_rating
 #     }
 #     return render(request, 'idea/idea_rating.html', context)
+
+@api_view(http_method_names=http_method_names)
+def user_f(request: HttpRequest, pk=0) -> Response:
+    try:
+        time.sleep(round(random.uniform(1.0, 2.5), 2))
+
+        if pk:
+            if request.method == "GET":
+                obj = User.objects.get(id=pk)
+                response = django_serializers.UserSerializer(obj, many=False).data
+                return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
+                # return JsonResponse(data={"response:": "Успешно"}, safe=True)  # TODO
+        else:
+            if request.method == "GET":
+                obj = User.objects.get(id=pk)
+                response = django_serializers.UserSerializer(obj, many=False).data
+                return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
+            if request.method == "POST":
+                print(request)
+                print(request.data)  # TODO data
+                print(request.POST)
+                print(request.FILES)
+                print(request.GET)
+
+                # php => должен отвечать на запросы по ip+port: 192.168.101.200:8001
+                # response = request.get('192.168.101.200:8001/algoritm')
+                # response = request.post()
+
+                # all = {
+                #     "1": {"1_1"},
+                #     "2": {"1_2": {"12": None}},
+                #     "3": {"1_1"},
+                # }
+                # all["2"]["1_2"]["12"]
+
+                action = request.GET.get("action", '_')
+                if action == "setAvatar":
+                    image = request.data.get("image", None)
+                    print(image)
+                    todo = django_models.Todo.objects.create(
+                        title="11111111",
+                        description="2222222222",
+                        avatar=image,
+                    )
+                    path = todo.avatar
+                    print(type(image))
+                    print(type(image.read()))
+                    print(image.read())
+                    print(str(image))
+                    print(image)
+                    print(str(image.read()))
+                    print(len(str(image.read())))
+
+                    # with open('static/image3.jpg', 'wb') as file:
+                    #     file.write()
+
+                    print('image image ты где')
+                    return Response(data={"response": "Successful"}, status=status.HTTP_201_CREATED)
+                else:
+                    username = request.data.get("username", "")
+                    password = request.data.get("password", "")
+                    print(username, password)
+                    return Response(data={"response": "Successful"}, status=status.HTTP_201_CREATED)
+        return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    except Exception as error:
+        if settings.DEBUG:
+            print(f"error {error}")
+        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)

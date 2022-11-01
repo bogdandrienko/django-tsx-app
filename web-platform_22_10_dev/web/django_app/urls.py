@@ -16,6 +16,9 @@ urlpatterns = [
     re_path(r'^result/(?P<pk>\d+)/$', views.result_f, name='result_pk'),
     re_path(r'^result/$', views.result_f, name='result'),
 
+    re_path(r'^user/(?P<pk>\d+)/$', views.user_f, name='user_pk'),
+    re_path(r'^user/$', views.user_f, name='user'),
+
     # path('task_mvt/', views.task_mvt_home, name='task_mvt_home'),
     # path('task_mvt/list/', views.task_mvt_home, name='task_mvt_read_list'),
     # path('task_mvt/create/', views.task_mvt_home, name='task_mvt_create'),
