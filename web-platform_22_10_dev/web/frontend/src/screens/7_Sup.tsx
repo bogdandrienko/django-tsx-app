@@ -50,9 +50,16 @@ export default function Page() {
                     </p>
                     <div className="d-grid gap-2 d-sm-flex justify-content-lg-center">
                       <img
-                        className="d-block mx-auto mb-4 img-fuild img-thumnail"
-                        src="/static/img/modules_poly/sup1.png"
+                        className="d-block mx-auto mb-4 img-fuild img-thumnail shadow shadow-lg"
+                        src="/static/img/modules_poly/salary1.jpg"
                         alt="images"
+                        width={850}
+                      />
+                      <img
+                        className="d-block mx-auto mb-4 img-fuild img-thumnail shadow shadow-lg"
+                        src="/static/img/modules_poly/vacation1.jpg"
+                        alt="images"
+                        width={850}
                       />
                     </div>
                     <div className="d-flex">
@@ -63,7 +70,7 @@ export default function Page() {
                         height="100%"
                         controls={true}
                         pip={true}
-                        className="react-player"
+                        className="react-player m-1"
                       />
                       <ReactPlayer
                         url="static/video/vacation.mp4"
@@ -72,7 +79,7 @@ export default function Page() {
                         height="100%"
                         controls={true}
                         pip={true}
-                        className="react-player"
+                        className="react-player m-1"
                       />
                     </div>
                   </div>

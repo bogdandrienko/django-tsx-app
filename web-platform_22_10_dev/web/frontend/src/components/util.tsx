@@ -660,6 +660,7 @@ export class RegularExpression {
 // @ts-ignore
 export const Delay = (callbackAfterDelay, time = 1000) => {
   try {
+    // setInterval(() => GetMonitoringData(), 2000);
     new Promise((resolve) => setTimeout(resolve, time)).then(() => {
       callbackAfterDelay();
     });

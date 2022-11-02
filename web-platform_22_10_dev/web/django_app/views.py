@@ -2,6 +2,7 @@ import re
 import time
 import random
 
+import openpyxl
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
@@ -213,12 +214,12 @@ class Django:
             #     self.user_model = None
             try:
                 token = str(self.request.META.get("HTTP_AUTHORIZATION", "1 0")).split(' ')[1]
-                self.user = backend_models.TokenModel.objects.get(token=token).user
+                # self.user = backend_models.TokenModel.objects.get(token=token).user
             except Exception as error:
                 self.user = None
             try:
-                self.user_model = \
-                    backend_models.UserModel.objects.get(user=self.user)
+                pass
+                # self.user_model = backend_models.UserModel.objects.get(user=self.user)
             except Exception as error:
                 self.user_model = None
             try:
@@ -252,7 +253,7 @@ class Django:
                 elif source.get(key, default) == "false":
                     return False
                 else:
-                    return DjangoClass.DRFClass.RequestClass.convert_value(
+                    return django_utils.DjangoClass.DRFClass.RequestClass.convert_value(
                         value=source.get(key, default),
                         default=default
                     )
@@ -290,7 +291,7 @@ class Django:
 
         @staticmethod
         def return_global_error(request, error):
-            DjangoClass.LoggingClass.error(request=request, error=error)
+            django_utils.DjangoClass.LoggingClass.error(request=request, error=error)
             return render(request, "backend/404.html")
 
     class RequestCustomClass:
@@ -539,6 +540,47 @@ def todo_f(request: Django.RequestCustomClass) -> any:
                     return "Successfully create"
                 else:
                     raise Exception({"detail": "Not have data"})
+
+
+@Django.request(auth=False)
+def report_f(request: Django.RequestCustomClass) -> any:
+    if request.pk:
+        pass
+    else:
+        if request.method == "GET":
+            if request.action == "Monitoring".upper():
+                data = [
+                    {"id": x, "type": "Автосамосвал", "speed": random.randint(0, 20), "mass": random.randint(87, 102),
+                     "status": random.choice(["Норма", "Простой", "Движение", "Погрузка"]),
+                     "time": django_utils.DateTimeUtils.get_current_time()}
+                    for x in range(200, 220)
+                ]
+                return {"data": data}
+            if request.action == "Report".upper():
+                try:
+                    workbook = openpyxl.load_workbook('static/media/vehtrips.xlsx')
+                    worksheet = workbook.active
+                    matrix = worksheet.iter_rows(
+                        # min_col=1, min_row=1, max_col=worksheet.max_row, max_row=worksheet.max_column, values_only=True
+                        min_col=1, min_row=1, max_col=worksheet.max_column, max_row=500, values_only=True
+                    )
+                    matrix = tuple(matrix)
+                    print(matrix)
+
+                    # matrix = []
+                    # print(matrix)
+                    # for i in range(1, worksheet.max_row+1):
+                    #     row_data = []
+                    #     for j in range(1, worksheet.max_column+1):
+                    #         print(i, j)
+                    #         row_data.append(worksheet.cell(i, j).value)
+                    #     matrix.append(row_data)
+                    print(matrix)
+                    return {"data": matrix}
+                except Exception as error:
+                    print(error)
+                    return {"data": []}
+
 
 
 @api_view(http_method_names=http_method_names)
@@ -1197,4 +1239,8 @@ def user_f(request: HttpRequest, pk=0) -> Response:
     except Exception as error:
         if settings.DEBUG:
             print(f"error {error}")
+<<<<<<< Updated upstream
         return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+=======
+        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+>>>>>>> Stashed changes

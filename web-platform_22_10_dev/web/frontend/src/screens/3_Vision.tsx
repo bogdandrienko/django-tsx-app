@@ -44,8 +44,8 @@ export default function Page() {
                   </h1>
                   <div className="col-lg-6 mx-auto">
                     <p className="lead mb-4">
-                      Высокотехнологические, но локализованные и точечные
-                      системы самого последнего уровня
+                      Высокотехнологичные, но узко-локализованные и точечные
+                      системы
                     </p>
                     <div className="d-grid gap-2 d-sm-flex justify-content-lg-center">
                       <img
