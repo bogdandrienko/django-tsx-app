@@ -75,39 +75,42 @@ def home(request: HttpRequest) -> Response:
 @api_view(http_method_names=["GET", "POST", "PUT", "PATCH", "DELETE"])
 @permission_classes([AllowAny])
 def todo(request: HttpRequest, pk=0) -> Response:
-    if pk:
-        if request.method == "GET":
-            todo_obj = models.Todo.objects.get(id=pk)
-            response = serializers.TodoSerializer(todo_obj, many=False).data
-            return Response(data={"response": response}, status=status.HTTP_200_OK)
-        elif request.method == "PUT" or request.method == "PATCH":
-            title = request.data["title"]
-            description = request.data["description"]
-            todo_obj = models.Todo.objects.get(id=pk)
-            if todo_obj.title != title:
-                todo_obj.title = title
-            if todo_obj.description != description:
-                todo_obj.description = description
-            todo_obj.save()
-            return Response(data={"response:": "Успешно"}, status=status.HTTP_200_OK)
-        elif request.method == "DELETE":
-            todo_obj = models.Todo.objects.get(id=pk)
-            todo_obj.delete()
-            return Response(data={"response:": "Успешно"}, status=status.HTTP_200_OK)
-    else:
-        if request.method == "GET":
-            todos_obj = models.Todo.objects.all()
-            response = serializers.TodoSerializer(todos_obj, many=True).data
-            return Response(data={"response": response}, status=status.HTTP_200_OK)
-        elif request.method == "POST":
-            title = request.data["title"]
-            description = request.data["description"]
-            if title and description:
-                models.Todo.objects.create(
-                    title=title,
-                    description=description
-                )
-                return Response(data={"response:": "Успешно"}, status=status.HTTP_201_CREATED)
-            else:
-                return Response(data={"error:": "Данные не заполнены"}, status=status.HTTP_400_BAD_REQUEST)
-    return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    try:
+        if pk:
+            if request.method == "GET":
+                todo_obj = models.Todo.objects.get(id=pk)
+                response = serializers.TodoSerializer(todo_obj, many=False).data
+                return Response(data={"response": response}, status=status.HTTP_200_OK)
+            elif request.method == "PUT" or request.method == "PATCH":
+                title = request.data["title"]
+                description = request.data["description"]
+                todo_obj = models.Todo.objects.get(id=pk)
+                if todo_obj.title != title:
+                    todo_obj.title = title
+                if todo_obj.description != description:
+                    todo_obj.description = description
+                todo_obj.save()
+                return Response(data={"response:": "Успешно"}, status=status.HTTP_200_OK)
+            elif request.method == "DELETE":
+                todo_obj = models.Todo.objects.get(id=pk)
+                todo_obj.delete()
+                return Response(data={"response:": "Успешно"}, status=status.HTTP_200_OK)
+        else:
+            if request.method == "GET":
+                todos_obj = models.Todo.objects.all()
+                response = serializers.TodoSerializer(todos_obj, many=True).data
+                return Response(data={"response": response}, status=status.HTTP_200_OK)
+            elif request.method == "POST":
+                title = request.data["title"]
+                description = request.data["description"]
+                if title and description:
+                    models.Todo.objects.create(
+                        title=title,
+                        description=description
+                    )
+                    return Response(data={"response:": "Успешно"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data={"error:": "Данные не заполнены"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    except Exception as error:
+        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)

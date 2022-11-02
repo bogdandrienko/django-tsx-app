@@ -354,7 +354,8 @@ class Django:
             try:
                 if self.token:
                     self.user = django_models.TokenModel.objects.get(token=self.token).user
-                    # user_model = backend_models.UserModel.objects.get(user=user_obj)
+                    # TODO
+                    # self.user_model = backend_models.UserModel.objects.get(user=user_obj)
                     # if user_model.is_active_account is False:
                     #     return Response({"error": "Внимание, Ваш аккаунт заблокирован!"})
                 else:
@@ -410,7 +411,7 @@ class Django:
             # @parser_classes([JSONParser])  # JSONParser MultiPartParser
             def wrapper(request: HttpRequest, pk=0):
                 # time_start = time.perf_counter()
-
+                # request_native = request
                 request = Django.RequestCustomClass(request=request, pk=pk)
                 try:
                     if auth is True and request.user is None:
@@ -431,7 +432,16 @@ class Django:
                 except Exception as error:
                     if settings.DEBUG:
                         print(f"error: ", error)
-                    django_utils.DjangoClass.LoggingClass.error(request=request, error=error)
+                    if settings.LOGGING:
+                        # text = [request.user, request.ip, request.path, request.method, request.action, error,
+                        #         datetime.datetime.now()]
+                        # string = ', '.join(text)
+                        # for val in text:
+                        #     string = string + f', {val}'
+                        # with open('static/media/admin/logging/logging_errors.txt', 'a') as log:
+                        #     log.write(f'\n{string[2:]}\n')
+                        # django_utils.DjangoClass.LoggingClass.error(request=request, error=error)
+                        pass
                     return Response(
                         data={"error": f"{request.path} {request.method} {request.action}: ({error})"},
                         status=status.HTTP_400_BAD_REQUEST
@@ -1283,3 +1293,24 @@ def user_f(request: HttpRequest, pk=0) -> Response:
         if settings.DEBUG:
             print(f"error {error}")
         return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(http_method_names=http_method_names)
+# @permission_classes([IsAdminUser])
+# @permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
+def get_all_users(request: HttpRequest) -> Response:
+    time.sleep(round(random.uniform(1.0, 2.5), 2))
+
+    user = request.user
+    print(user, type(user))
+    if request.user.is_superuser is False:
+        return Response(data={"response": "FORBIDDEN"}, status=status.HTTP_403_FORBIDDEN)
+
+    token = request.META.get("HTTP_AUTHORIZATION", "Bearer _").split('Bearer')[1].strip()
+    print("token:", token)
+
+    if request.method == "GET":
+        obj = User.objects.all()
+        response = django_serializers.UserSerializer(obj, many=True).data
+        return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)

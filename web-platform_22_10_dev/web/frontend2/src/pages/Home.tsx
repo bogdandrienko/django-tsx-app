@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import * as accordeons from "../components/accordeon";
@@ -14,6 +14,7 @@ export default function Page() {
 
   //     [getter, setter]
   const [value1, setValue1] = useState(12);
+  const [token, setToken] = useState("");
   const [page, setPage] = useState(1);
   const [image, setImage] = useState(null);
   const [results, setResults] = useState([]);
@@ -98,6 +99,49 @@ export default function Page() {
     }
   }
 
+  async function getToken() {
+    const config = {
+      url: `/api/token_jwt/`,
+      method: "POST",
+      timeout: 3000,
+      data: { username: "user", password: "Qwerty!12345" },
+    };
+    const response = await axios(config);
+    if (response.data) {
+      console.log("response: ", response.data);
+      setToken(response.data.access);
+      localStorage.setItem("token_jwt", response.data.access);
+    } else {
+      console.log("error: ", response);
+    }
+  }
+
+  async function getAllUsers() {
+    const config = {
+      url: `/api/get_all_users/`,
+      method: "GET",
+      timeout: 3000,
+      data: {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await axios(config);
+    if (response.data) {
+      console.log("response: ", response.data);
+    } else {
+      console.log("error: ", response);
+    }
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("token_jwt")
+      ? localStorage.getItem("token_jwt")
+      : "no token";
+    // @ts-ignore
+    setToken(token);
+  }, []);
+
   // TODO тут логика (js)
   // @ts-ignore
   return (
@@ -105,6 +149,30 @@ export default function Page() {
     <accordeons.Base1>
       <div className="App">
         <header className="App-header">
+          <div
+            className={
+              "container container-fluid m-5 border border-1 border-dark"
+            }
+          >
+            <h2 className={"lead"}>
+              token:{" "}
+              <small>{token.length < 1 ? "токен не получен" : token}</small>
+            </h2>
+            <div className={"btn-group"}>
+              <button
+                className={"btn btn-lg btn-outline-primary"}
+                onClick={getToken}
+              >
+                getToken
+              </button>
+              <button
+                className={"btn btn-lg btn-outline-danger"}
+                onClick={getAllUsers}
+              >
+                getAllUsers
+              </button>
+            </div>
+          </div>
           <h1>Home page</h1>
           <Link to="/login">go</Link>
           <accordeons.Accordeon1 value={"666"}>111</accordeons.Accordeon1>
