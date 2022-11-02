@@ -16,12 +16,9 @@ urlpatterns = [
     re_path(r'^result/(?P<pk>\d+)/$', views.result_f, name='result_pk'),
     re_path(r'^result/$', views.result_f, name='result'),
 
-<<<<<<< Updated upstream
-=======
     re_path(r'^report/(?P<pk>\d+)/$', views.report_f, name='report_pk'),
     re_path(r'^report/$', views.report_f, name='report'),
 
->>>>>>> Stashed changes
     re_path(r'^user/(?P<pk>\d+)/$', views.user_f, name='user_pk'),
     re_path(r'^user/$', views.user_f, name='user'),
 

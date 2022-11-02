@@ -1,3 +1,4 @@
+import datetime
 import re
 import time
 import random
@@ -341,13 +342,13 @@ class Django:
             try:
                 self.action = self.request.META.get(
                     "HTTP_AUTHORIZATION", "action=_;token=_;"
-                ).split('action=')[1].split(';')[0].upper()
+                ).split('action=')[1].split(';')[0].lower()
             except Exception as error:
                 self.action = ""
             try:
                 self.token = self.request.META.get(
                     "HTTP_AUTHORIZATION", "action=_;token=_;"
-                ).split('token=')[1].split(';')[0].upper()
+                ).split('token=')[1].split(';')[0]
             except Exception as error:
                 self.token = ""
             try:
@@ -548,39 +549,61 @@ def report_f(request: Django.RequestCustomClass) -> any:
         pass
     else:
         if request.method == "GET":
-            if request.action == "Monitoring".upper():
+            if request.action == "monitoring":
                 data = [
                     {"id": x, "type": "Автосамосвал", "speed": random.randint(0, 20), "mass": random.randint(87, 102),
-                     "status": random.choice(["Норма", "Простой", "Движение", "Погрузка"]),
+                     "status": random.choice(["Норма", "Простой", "Движение", "Погрузка", "Ремонт", "ППР"]),
                      "time": django_utils.DateTimeUtils.get_current_time()}
-                    for x in range(200, 220)
+                    for x in range(201, 230)
                 ]
                 return {"data": data}
-            if request.action == "Report".upper():
+            if request.action == "report":
                 try:
+
+                    # ?page=1&limit=10&sort_by=name%20(asc)&filter_by=pay%20(true)&search=95
+                    page = request.GET.get("page", 1)
+                    limit = request.GET.get("limit", 10)
+                    search = request.GET.get("search", "")
+                    filter_by = request.GET.get("filter_by", "")
+                    sort_by = request.GET.get("sort_by", "")
+
                     workbook = openpyxl.load_workbook('static/media/vehtrips.xlsx')
                     worksheet = workbook.active
                     matrix = worksheet.iter_rows(
-                        # min_col=1, min_row=1, max_col=worksheet.max_row, max_row=worksheet.max_column, values_only=True
+                        # min_col=1, min_row=1, max_col=worksheet.max_row, max_row=worksheet.max_column,
+                        # values_only=True
                         min_col=1, min_row=1, max_col=worksheet.max_column, max_row=500, values_only=True
                     )
-                    matrix = tuple(matrix)
-                    print(matrix)
-
                     # matrix = []
-                    # print(matrix)
                     # for i in range(1, worksheet.max_row+1):
                     #     row_data = []
                     #     for j in range(1, worksheet.max_column+1):
                     #         print(i, j)
                     #         row_data.append(worksheet.cell(i, j).value)
                     #     matrix.append(row_data)
+                    matrix = [
+                        {"Автосамосвал": x[0], "Экскаватор": x[1], "Зона разгрузки": x[2], "Тип породы": x[3],
+                         "Зона погрузки": x[4], "Ном.": x[5], "Расстояние": x[6], "Масса": x[7], "Объём": x[8],
+                         "Частота по массе": x[9], "Частота по объёму": x[10], "Сред. скорость": x[11],
+                         "Часы": x[12], "Высота погрузки": x[13], "Высота разгрузки": x[14], "Время погрузки": x[15],
+                         "Время выезда на дорогу": x[16], "Время разгрузки": x[17], "Время рейса": x[18]}
+                        for x in list(matrix)
+                    ]
+                    matrix = [
+                        x for x in matrix
+                        if isinstance(x["Время разгрузки"], datetime.datetime) and
+                           (filter_by == "все" or filter_by == x["Зона разгрузки"])
+                    ]
+                    print(matrix)
+                    if sort_by == "времени погрузки (свежие в начале)":
+                        matrix.sort(key=lambda x: x["Время погрузки"], reverse=True)
+                    else:
+                        matrix.sort(key=lambda x: x["Время погрузки"])
                     print(matrix)
                     return {"data": matrix}
                 except Exception as error:
                     print(error)
                     return {"data": []}
-
 
 
 @api_view(http_method_names=http_method_names)
@@ -734,6 +757,7 @@ def result_f(request: HttpRequest, pk=0) -> Response:
         if settings.DEBUG:
             print(f"error {error}")
         return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # @api_view(http_method_names=http_method_names)
 # def todo_f(request: HttpRequest, pk=0) -> Response:
@@ -1190,6 +1214,25 @@ def user_f(request: HttpRequest, pk=0) -> Response:
                 response = django_serializers.UserSerializer(obj, many=False).data
                 return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
             if request.method == "POST":
+                # {"username": "user12346", "password": "qwertY!212",
+                #  "last_name": "UserSurname", "first_name": "UserName", "patronymic": "UserPatr"}
+                username = request.data.get("username", "")
+                password = request.data.get("password", "")
+                last_name = request.data.get("last_name", "")
+                first_name = request.data.get("first_name", "")
+                patronymic = request.data.get("patronymic", "")
+                user = User.objects.create(
+                    username=username,
+                    password=make_password(password)
+                )
+                django_models.UserModel.objects.create(
+                    user=user,
+                    last_name=last_name,
+                    first_name=first_name,
+                    patronymic=patronymic,
+                )
+                return Response(data={"response:": "Успешно"}, status=status.HTTP_201_CREATED)
+
                 print(request)
                 print(request.data)  # TODO data
                 print(request.POST)
@@ -1239,8 +1282,4 @@ def user_f(request: HttpRequest, pk=0) -> Response:
     except Exception as error:
         if settings.DEBUG:
             print(f"error {error}")
-<<<<<<< Updated upstream
         return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
-=======
-        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
->>>>>>> Stashed changes

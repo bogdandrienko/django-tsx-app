@@ -636,10 +636,11 @@ class UserModel(models.Model):
 def create_user_model(sender, instance, created, **kwargs):
     # if created:
     try:
-        UserModel.objects.get_or_create(user=instance)
+        # UserModel.objects.get_or_create(user=instance)
         # profile = django_models.UserModel.objects.get_or_create(user=instance)[0]  # (user, True)
         # profile.email = user.email
         # profile.save()
+        pass
     except Exception as error:
         pass
 

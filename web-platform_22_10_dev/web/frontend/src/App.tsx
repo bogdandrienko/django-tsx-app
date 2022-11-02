@@ -6,14 +6,15 @@ import "./App.css";
 import "./css/bootstrap/bootstrap.min.css";
 import "./css/font_awesome/css/all.css";
 import "./css/my.css";
-import Home from "./screens/1_Home";
+import Home from "./screens/0_Home";
 import Instructions from "./screens/2_Instructions";
 import Vision from "./screens/3_Vision";
 import Predictivity from "./screens/4_Predictivity";
-import Asd from "./screens/5_Asd";
-import External from "./screens/6_External";
-import Sup from "./screens/7_Sup";
-import Login from "./screens/0_Login";
+import Virtual from "./screens/5_Virtual";
+import Asd from "./screens/6_Asd";
+import External from "./screens/7_External";
+import Sup from "./screens/8_Sup";
+import Login from "./screens/1_Login";
 import { HomePage } from "./pages/1_main/HomePage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -78,14 +79,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />}></Route>
         <Route path="/" element={<Home />}></Route>
-        <Route path="/vision" element={<Vision />}></Route>
         <Route path="/instructions" element={<Instructions />}></Route>
+        <Route path="/vision" element={<Vision />}></Route>
+        <Route path="/predictivity" element={<Predictivity />}></Route>
+        <Route path="/virtual" element={<Virtual />}></Route>
         <Route path="/asd" element={<Asd />}></Route>
         <Route path="/external" element={<External />}></Route>
-        <Route path="/predictivity" element={<Predictivity />}></Route>
         <Route path="/sup" element={<Sup />}></Route>
-        <Route path="/login" element={<Login />}></Route>
       </Routes>
     </BrowserRouter>
   );
