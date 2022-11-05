@@ -29,8 +29,8 @@ urlpatterns = [
     path('home/', views.index_f, name='home'),
     path('api/', include('django_app.urls')),
 
-    # path('django_drf_todo_list/', include('django_drf_todo_list.urls')),
-    # path('django_mvt_todo_list/', include('django_mvt_todo_list.urls')),
+    path('django_drf_todo_list/', include('django_drf_todo_list.urls')),
+    path('django_mvt_todo_list/', include('django_mvt_todo_list.urls')),
     path('api-auth/', include('rest_framework.urls')),
 
     re_path(r'^.*$', lambda request: redirect('/', permanent=False), name='redirect'),

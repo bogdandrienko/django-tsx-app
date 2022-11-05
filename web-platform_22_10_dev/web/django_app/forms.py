@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-# from backend import models as backend_models
+# from backend import models as django_models
 
 
 # class ExamplesModelForm(forms.Form):
@@ -628,7 +628,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 #         )
 #
 #     class Meta:
-#         model = backend_models.ExamplesModel  # Модель, которой принадлежит форма
+#         model = django_models.ExamplesModel  # Модель, которой принадлежит форма
 #         # fields = ('username', 'password_1', 'password_2', 'email')  # Набор полей, который нужно отображать
 #         fields = '__all__'  # Набор полей, который нужно отображать
 #

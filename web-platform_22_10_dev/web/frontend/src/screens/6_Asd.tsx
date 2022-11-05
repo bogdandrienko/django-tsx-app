@@ -5,7 +5,6 @@ import * as hook from "../components/hook";
 import * as util from "../components/util";
 import * as component from "../components/ui/component";
 import * as loader from "../components/ui/loader";
-import { Loader2 } from "../components/ui/loader";
 
 export default function Page() {
   const [monitoring, setMonitoring, resetMonitoring] = hook.useStateCustom1([]);
@@ -324,7 +323,7 @@ export default function Page() {
                                   </select>
                                 </label>
                                 <label className="form-control-sm text-center m-0 p-1">
-                                  Зона разгрузки:
+                                  Тип породы:
                                   <select
                                     className="form-control form-control-sm text-center m-0 p-1"
                                     value={filterIdeaListForm.filter}
@@ -340,15 +339,21 @@ export default function Page() {
                                     </option>
                                     <option
                                       className="m-0 p-0"
-                                      value="Отвал пуст. пород №2"
+                                      value="Вскрыша рыхлая"
                                     >
-                                      Отвал пуст. пород №2
+                                      Вскрыша рыхлая
                                     </option>
                                     <option
                                       className="m-0 p-0"
-                                      value="Отвал ОПП №4"
+                                      value="Вскрыша транзитная"
                                     >
-                                      Отвал ОПП №4
+                                      Вскрыша транзитная
+                                    </option>
+                                    <option
+                                      className="m-0 p-0"
+                                      value="Вскрыша скальная"
+                                    >
+                                      Вскрыша скальная
                                     </option>
                                   </select>
                                 </label>
@@ -447,73 +452,73 @@ export default function Page() {
                               <tbody className="m-0 p-0">
                                 {reports.slice(1, -1).map(
                                   // @ts-ignore
-                                  (item, index) => (
+                                  (item: any, index) => (
                                     <tr key={index} className="m-0 p-0">
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Экскаватор"]}
+                                        {item["1"]["Экскаватор"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Автосамосвал"]}
+                                        {item["1"]["Автосамосвал"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Зона погрузки"]}
+                                        {item["1"]["Зона погрузки"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Зона разгрузки"]}
+                                        {item["1"]["Зона разгрузки"]}
                                       </td>
                                       <td
                                         className={`text-end fw-bold m-0 p-1 ${
-                                          item["Тип породы"] ===
+                                          item["1"]["Тип породы"] ===
                                           "Вскрыша скальная"
                                             ? "text-warning"
-                                            : item["Тип породы"] ===
+                                            : item["1"]["Тип породы"] ===
                                               "Вскрыша рыхлая"
                                             ? "text-danger"
                                             : ""
                                         }`}
                                       >
-                                        {item["Тип породы"]}
+                                        {item["1"]["Тип породы"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Расстояние"]}
+                                        {item["1"]["Расстояние"]}
                                       </td>
                                       <td
                                         className={`text-center fw-bold m-0 p-1 ${
-                                          item["Масса"] > 95
+                                          item["1"]["Масса"] > 95
                                             ? "text-danger"
-                                            : item["Масса"] > 90
+                                            : item["1"]["Масса"] > 90
                                             ? "text-success"
-                                            : item["Масса"] <= 85
+                                            : item["1"]["Масса"] <= 85
                                             ? "text-warning"
                                             : ""
                                         }`}
                                       >
-                                        {item["Масса"]}
+                                        {item["1"]["Масса"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Объём"]}
+                                        {item["1"]["Объём"]}
                                       </td>
                                       <td
                                         className={`text-center fw-bold m-0 p-1 ${
-                                          item["Сред. скорость"] > 18
+                                          item["1"]["Сред. скорость"] > 18
                                             ? "text-danger"
-                                            : item["Сред. скорость"] > 16
+                                            : item["1"]["Сред. скорость"] > 16
                                             ? "text-success"
-                                            : item["Сред. скорость"] <= 0
+                                            : item["1"]["Сред. скорость"] <= 0
                                             ? "text-warning"
                                             : ""
                                         }`}
                                       >
-                                        {item["Сред. скорость"]}
+                                        {item["1"]["Сред. скорость"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Время погрузки"]}
+                                        {item["1"]["Время погрузки"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Время разгрузки"]}
+                                        {item["1"]["Время разгрузки"]}
                                       </td>
                                       <td className="text-center fw-bold m-0 p-1">
-                                        {item["Время рейса"]}
+                                        {item["1"]["Время рейса"]}
                                       </td>
                                     </tr>
                                   )

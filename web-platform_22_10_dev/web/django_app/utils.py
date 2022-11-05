@@ -10,20 +10,24 @@ import threading
 import time
 import httplib2
 import openpyxl
+from typing import Union
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User, update_last_login
+from django.core.handlers.wsgi import WSGIRequest
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpRequest
 from django.shortcuts import render
 from openpyxl.utils import get_column_letter
-from typing import Union
-
-# TODO django modules ##################################################################################################
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
-
-# TODO custom modules ##################################################################################################
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from django_app import models as django_models
+
+
+# TODO django modules ##################################################################################################
+# TODO custom modules ##################################################################################################
 
 
 # TODO base service ####################################################################################################
@@ -34,7 +38,7 @@ class DjangoClass:
         def error(request, error):
             try:
                 if DjangoClass.DefaultSettingsClass.get_actions_print_value():
-                    req_inst = DjangoClass.DRFClass.RequestClass(request=request)
+                    req_inst = DjangoClass.DRFClass.RequestOldClass(request=request)
                     print(f"\n\nusername: {req_inst.user}"
                           f"\nip: {req_inst.ip}"
                           f"\nrequest_path: {req_inst.path}"
@@ -43,8 +47,8 @@ class DjangoClass:
                           f"\nerror: {error}")
 
                 if DjangoClass.DefaultSettingsClass.get_error_logging_value():
-                    req_inst = DjangoClass.DRFClass.RequestClass(request=request)
-                    backend_models.LoggingModel.objects.create(
+                    req_inst = DjangoClass.DRFClass.RequestOldClass(request=request)
+                    django_models.LoggingModel.objects.create(
                         username=req_inst.user,
                         ip=req_inst.ip,
                         path=req_inst.path,
@@ -70,7 +74,7 @@ class DjangoClass:
                           f"\nerror: {error}")
 
                 if DjangoClass.DefaultSettingsClass.get_actions_logging_value():
-                    backend_models.LoggingModel.objects.create(
+                    django_models.LoggingModel.objects.create(
                         path="error_local",
                         method=function_error,
                         error=f'error: {error}'
@@ -88,7 +92,7 @@ class DjangoClass:
         def action(request):
             try:
                 if DjangoClass.DefaultSettingsClass.get_actions_print_value():
-                    request_instance = DjangoClass.DRFClass.RequestClass(request=request)
+                    request_instance = DjangoClass.DRFClass.RequestOldClass(request=request)
                     print(f"\n\n{DateTimeUtils.get_current_datetime()}"
                           f"\nrequest_path: {request_instance.path}"
                           f"\nrequest_action_type: {request_instance.action_type}"
@@ -96,8 +100,8 @@ class DjangoClass:
                           f"\nrequest.data: {request_instance.data}")
 
                 if DjangoClass.DefaultSettingsClass.get_actions_logging_value():
-                    req_inst = DjangoClass.DRFClass.RequestClass(request=request)
-                    backend_models.LoggingModel.objects.create(
+                    req_inst = DjangoClass.DRFClass.RequestOldClass(request=request)
+                    django_models.LoggingModel.objects.create(
                         username=req_inst.user,
                         ip=req_inst.ip,
                         path=req_inst.path,
@@ -117,7 +121,7 @@ class DjangoClass:
         @staticmethod
         def response(request, response):
             if DjangoClass.DefaultSettingsClass.get_response_print_value():
-                request_instance = DjangoClass.DRFClass.RequestClass(request=request)
+                request_instance = DjangoClass.DRFClass.RequestOldClass(request=request)
                 print(f"\n\n{DateTimeUtils.get_current_datetime()}"
                       f"\nrequest_path: {request_instance.path}"
                       f"\nrequest_action_type: {request_instance.action_type}"
@@ -126,8 +130,8 @@ class DjangoClass:
                       f"\nrequest.response: {response}")
 
             if DjangoClass.DefaultSettingsClass.get_response_logging_value():
-                req_inst = DjangoClass.DRFClass.RequestClass(request=request)
-                backend_models.LoggingModel.objects.create(
+                req_inst = DjangoClass.DRFClass.RequestOldClass(request=request)
+                django_models.LoggingModel.objects.create(
                     username=req_inst.user,
                     ip=req_inst.ip,
                     path=req_inst.path,
@@ -145,9 +149,9 @@ class DjangoClass:
     class TemplateClass:
         @staticmethod
         def request(request):
-            #threading.Thread(target=DjangoClass.DefaultSettingsClass.check_settings, args=(request,)).start()
-            #threading.Thread(target=DjangoClass.LoggingClass.action, args=(request,)).start()
-            request_instance = DjangoClass.DRFClass.RequestClass(request=request)
+            # threading.Thread(target=DjangoClass.DefaultSettingsClass.check_settings, args=(request,)).start()
+            # threading.Thread(target=DjangoClass.LoggingClass.action, args=(request,)).start()
+            request_instance = DjangoClass.DRFClass.RequestOldClass(request=request)
 
             return request_instance
 
@@ -157,6 +161,208 @@ class DjangoClass:
 
     class DRFClass:
         class RequestClass:
+            def __init__(self, request: HttpRequest, pk: int):
+                try:
+                    self.request = request
+                except Exception as error:
+                    self.request = None
+                try:
+                    self.GET = request.GET
+                except Exception as error:
+                    self.GET = None
+                try:
+                    self.POST = request.POST
+                except Exception as error:
+                    self.POST = None
+                try:
+                    # {'title': ['111 111'], 'is_completed': ['false']} # multipart/form-data
+                    # {"title": "111 111", "is_completed": "false"}  # application/json
+                    self.data = request.data
+                except Exception as error:
+                    self.data = None
+                try:
+                    self.body = request.data.get("body")
+                except Exception as error:
+                    self.body = None
+                try:
+                    self.FILES = request.FILES
+                except Exception as error:
+                    self.FILES = None
+                try:
+                    self.META = request.META
+                except Exception as error:
+                    self.META = None
+                try:
+                    self.path = request.path
+                except Exception as error:
+                    self.path = ""
+                try:
+                    self.ip = request.META.get("REMOTE_ADDR")
+                except Exception as error:
+                    self.ip = ""
+                try:
+                    self.method = request.method.upper()
+                except Exception as error:
+                    self.method = "GET"
+                try:
+                    self.action = self.request.META.get(
+                        "HTTP_AUTHORIZATION", "action=_;token=_;"
+                    ).split('action=')[1].split(';')[0].lower()
+                except Exception as error:
+                    self.action = ""
+                try:
+                    self.token = self.request.META.get(
+                        "HTTP_AUTHORIZATION", "action=_;token=_;"
+                    ).split('token=')[1].split(';')[0]
+                except Exception as error:
+                    self.token = ""
+                try:
+                    if self.token:
+                        self.user = django_models.TokenModel.objects.get(token=self.token).user
+                        self.user_model = self.user.user_model
+                        if self.user_model.is_active_account is False:
+                            self.user = None
+                            self.user_model = None
+                    else:
+                        self.user = None
+                        self.user_model = None
+                except Exception as error:
+                    self.user = None
+                    self.user_model = None
+                try:
+                    self.pk = pk
+                except Exception as error:
+                    self.pk = 0
+
+            def get(self, key: str, _type: any, default: any, is_file: bool) -> any:
+                # print("self.GET: ", self.GET)
+                # print("self.data: ", self.data)
+                # print("self.POST: ", self.POST)
+                # print("self.FILES: ", self.FILES)
+                if self.method == "GET" or self.method == "DELETE":
+                    source = self.GET
+                elif self.method == "POST" or self.method == "PUT" or self.method == "PATCH":
+                    if is_file:
+                        source = self.FILES
+                    else:
+                        source = self.data  # self.POST
+                else:
+                    raise Exception({"message": "METHOD NOT ALLOWED"})
+                value = source.get(key, default)
+
+                if value == 'null' or value is None:
+                    return None
+                elif value == 'true' or value is True:
+                    return True
+                elif value == 'false' or value is False:
+                    return False
+                else:
+                    if _type is bool:
+                        return bool(value)
+                    elif _type is str:
+                        return str(value).strip()
+                    elif _type is int:
+                        return int(value)
+                    elif _type is float:
+                        return float(value)
+                    else:
+                        return value
+
+            @staticmethod
+            def request(auth=True):
+                def decorator(func):
+
+                    @api_view(http_method_names=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
+                    # @permission_classes([AllowAny])  # AllowAny, IsAuthenticated, IsAdminUser
+                    # @authentication_classes([BasicAuthentication])
+                    # @parser_classes([JSONParser])  # JSONParser MultiPartParser
+                    def wrapper(request: HttpRequest, pk=0):
+                        try:
+                            # 1/0 # TODO test exception
+
+                            # time.sleep(round(random.uniform(0.5, 2.0), 2))  # TODO debug delay
+
+                            time_start = time.perf_counter()  # TODO check elapsed time
+
+                            request = DjangoClass.DRFClass.RequestClass(request=request, pk=pk)
+
+                            if auth is True and request.user is None:
+                                return Response(data={"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
+                            if request.user:
+                                update_last_login(sender=None, user=request.user)
+                            result = func(request)  # TODO call main function
+
+                            logging_response = django_models.SettingsModel.get_value(type_="logging_response")
+                            if logging_response and logging_response.split("logging_response=")[1] == "True":
+                                logging_response = result
+                            else:
+                                logging_response = "-"
+
+                            logging_action = django_models.SettingsModel.get_value(type_="logging_action")
+                            if logging_action and logging_action.split("logging_action=")[1] == "True":
+                                django_models.LoggingModel.objects.create(
+                                    user=request.user,
+                                    ip=request.ip,
+                                    path=request.path,
+                                    method=request.method,
+                                    text=logging_response,
+                                )
+
+                            print_response = django_models.SettingsModel.get_value(type_="print_response")
+                            if print_response and print_response.split("print_response=")[1] == "True":
+                                print_response = result
+                            else:
+                                print_response = "-"
+
+                            print_action = django_models.SettingsModel.get_value(type_="print_action")
+                            if print_action and print_action.split("print_action=")[1] == "True":
+                                text = f"\ntime: {DateTimeUtils.get_current_time()} user: {request.user} ip: " \
+                                       f"{request.ip} path: {request.path} method: {request.method} action: " \
+                                       f"{request.action} response: {print_response}"
+                                print(text)
+
+                            print("elapsed time: ",
+                                  f"{round(time.perf_counter() - time_start, 3)}")  # TODO check elapsed time
+                            if result:
+                                return Response(data={"response": result}, status=status.HTTP_200_OK)
+                            return Response(data={"error": "METHOD_NOT_ALLOWED"},
+                                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+                        except Exception as error:
+                            try:
+                                # 1/0  # TODO test global exception
+
+                                logging_error = django_models.SettingsModel.get_value(type_="logging_error")
+                                if logging_error and logging_error.split("logging_error=")[1] == "True":
+                                    django_models.LoggingModel.objects.create(
+                                        user=request.user,
+                                        ip=request.ip,
+                                        path=request.path,
+                                        method=request.method,
+                                        text=str(error)[:3000 - 1],
+                                    )
+                                print_error = django_models.SettingsModel.get_value(type_="print_error")
+                                text = f"time: {DateTimeUtils.get_current_time()} user: {request.user} ip: " \
+                                       f"{request.ip} path: {request.path} method: {request.method} action: " \
+                                       f"{request.action} error: {error}"
+                                if settings.DEBUG or (print_error and print_error.split("print_error=")[1] == "True"):
+                                    print("error: ", text)
+                                return Response(data={"error": text}, status=status.HTTP_400_BAD_REQUEST)
+                            except Exception as global_error:
+                                text = f"\ntime: {DateTimeUtils.get_current_time()} user: {request.user} ip: " \
+                                       f"{request.ip} path: {request.path} method: {request.method} action: " \
+                                       f"{request.action} error: {global_error}"
+                                print_error = django_models.SettingsModel.get_value(type_="print_error")
+                                if settings.DEBUG or (print_error and print_error.split("print_error=")[1] == "True"):
+                                    print("global_error: ", text)
+                                with open('static/media/admin/logging/logging_errors.txt', 'a') as log:
+                                    log.write(text)
+                                return Response(data={"error": str(global_error)}, status=status.HTTP_400_BAD_REQUEST)
+
+                    return wrapper
+
+                return decorator
+
+        class RequestOldClass:
             def __init__(self, request):
                 # print("request.scheme: ", request.scheme)
                 # print("request.body: ", request.body)
@@ -210,17 +416,17 @@ class DjangoClass:
                 #     self.user = None
                 # try:
                 #     self.user_model = \
-                #         backend_models.UserModel.objects.get(user=self.user)
+                #         django_models.UserModel.objects.get(user=self.user)
                 # except Exception as error:
                 #     self.user_model = None
                 try:
                     token = str(self.request.META.get("HTTP_AUTHORIZATION", "1 0")).split(' ')[1]
-                    self.user = backend_models.TokenModel.objects.get(token=token).user
+                    self.user = django_models.TokenModel.objects.get(token=token).user
                 except Exception as error:
                     self.user = None
                 try:
                     self.user_model = \
-                        backend_models.UserModel.objects.get(user=self.user)
+                        django_models.UserModel.objects.get(user=self.user)
                 except Exception as error:
                     self.user_model = None
                 try:
@@ -254,7 +460,7 @@ class DjangoClass:
                     elif source.get(key, default) == "false":
                         return False
                     else:
-                        return DjangoClass.DRFClass.RequestClass.convert_value(
+                        return DjangoClass.DRFClass.RequestOldClass.convert_value(
                             value=source.get(key, default),
                             default=default
                         )
@@ -293,9 +499,9 @@ class DjangoClass:
             @staticmethod
             def return_global_error(request, error):
                 DjangoClass.LoggingClass.error(request=request, error=error)
-                return render(request, "backend/404.html")
+                return render(request, "django_app/404.html")
 
-        class OldRequestClass:
+        class RequestOld1Class:
             @staticmethod
             def get_value(request: WSGIRequest, key: str, none_is_error=False, strip=True):
                 if none_is_error:
@@ -360,9 +566,9 @@ class DjangoClass:
         @staticmethod
         def check_settings(request):
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="logging_action")
+                obj = django_models.SettingsModel.objects.filter(type="logging_action")
                 if obj.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="logging_action",
                         char="Логирование действий: вкл/выкл(boolean)",
                         boolean=True
@@ -371,9 +577,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="print_action")
+                objects = django_models.SettingsModel.objects.filter(type="print_action")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="print_action",
                         char="Вывод в консоль действий, вкл/выкл(boolean)",
                         boolean=False
@@ -382,9 +588,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="logging_error")
+                objects = django_models.SettingsModel.objects.filter(type="logging_error")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="logging_error",
                         char="Логирование ошибок, вкл/выкл(boolean)",
                         boolean=True
@@ -393,9 +599,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="print_error")
+                objects = django_models.SettingsModel.objects.filter(type="print_error")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="print_error",
                         char="Вывод в консоль ошибок, вкл/выкл(boolean)",
                         boolean=False
@@ -404,9 +610,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="logging_response")
+                objects = django_models.SettingsModel.objects.filter(type="logging_response")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="logging_response",
                         char="Логирование ответов, вкл/выкл(boolean)",
                         boolean=False
@@ -415,9 +621,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="print_response")
+                objects = django_models.SettingsModel.objects.filter(type="print_response")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="print_response",
                         char="Вывод в консоль ответов, вкл/выкл(boolean)",
                         boolean=False
@@ -426,9 +632,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="scheduler_personal")
+                objects = django_models.SettingsModel.objects.filter(type="scheduler_personal")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="scheduler_personal",
                         char="Планировщик обновления персонала из 1С",
                         text="http://192.168.1.10/KM_1C/hs/iden/change/ | Web_adm_1c | 159159qqww!",
@@ -439,7 +645,7 @@ class DjangoClass:
                     obj = objects[0]
                     if obj.boolean:
                         try:
-                            objects = backend_models.LoggingModel.objects.filter(
+                            objects = django_models.LoggingModel.objects.filter(
                                 path="/scheduler_personal/"
                             )
                             update = True
@@ -450,8 +656,8 @@ class DjangoClass:
                                         (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M'):
                                     update = False
                             if update:
-                                req_inst = DjangoClass.DRFClass.RequestClass(request=request)
-                                backend_models.LoggingModel.objects.create(
+                                req_inst = DjangoClass.DRFClass.RequestOldClass(request=request)
+                                django_models.LoggingModel.objects.create(
                                     username=req_inst.user,
                                     ip=req_inst.ip,
                                     path="/scheduler_personal/",
@@ -467,9 +673,9 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="scheduler_superuser")
+                objects = django_models.SettingsModel.objects.filter(type="scheduler_superuser")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="scheduler_superuser",
                         char="Планировщик создания стандартных суперпользователей",
                         text="000000000000, 31284bogdan | Web_adm_1c, 159159qqww!",
@@ -493,19 +699,19 @@ class DjangoClass:
                 print(error)
 
             try:
-                objects = backend_models.SettingsModel.objects.filter(type="scheduler_group")
+                objects = django_models.SettingsModel.objects.filter(type="scheduler_group")
                 if objects.count() < 1:
-                    backend_models.SettingsModel.objects.create(
+                    django_models.SettingsModel.objects.create(
                         type="scheduler_group",
                         char="Планировщик создания стандартных групп",
                         text="user, moderator, superuser, " +
-                                   "moderator_oit, moderator_otiz, moderator_idea, " +
+                             "moderator_oit, moderator_otiz, moderator_idea, " +
 
-                                   "moderator_rational, moderator_rational_atp, moderator_rational_gtk, "
-                                   "moderator_rational_ok, moderator_rational_upravlenie, "
-                                   "moderator_rational_energoupravlenie, " +
+                             "moderator_rational, moderator_rational_atp, moderator_rational_gtk, "
+                             "moderator_rational_ok, moderator_rational_upravlenie, "
+                             "moderator_rational_energoupravlenie, " +
 
-                                   "",
+                             "",
                         boolean=True
                     )
                 else:
@@ -524,7 +730,7 @@ class DjangoClass:
         @staticmethod
         def get_actions_logging_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="logging_action")[0]
+                obj = django_models.SettingsModel.objects.filter(type="logging_action")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -532,7 +738,7 @@ class DjangoClass:
         @staticmethod
         def get_actions_print_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="print_action")[0]
+                obj = django_models.SettingsModel.objects.filter(type="print_action")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -540,7 +746,7 @@ class DjangoClass:
         @staticmethod
         def get_error_logging_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="logging_error")[0]
+                obj = django_models.SettingsModel.objects.filter(type="logging_error")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -548,7 +754,7 @@ class DjangoClass:
         @staticmethod
         def get_error_print_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="print_error")[0]
+                obj = django_models.SettingsModel.objects.filter(type="print_error")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -556,7 +762,7 @@ class DjangoClass:
         @staticmethod
         def get_response_logging_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="logging_response")[0]
+                obj = django_models.SettingsModel.objects.filter(type="logging_response")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -564,7 +770,7 @@ class DjangoClass:
         @staticmethod
         def get_response_print_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="print_response")[0]
+                obj = django_models.SettingsModel.objects.filter(type="print_response")[0]
                 return obj.boolean
             except Exception as error:
                 return False
@@ -572,7 +778,7 @@ class DjangoClass:
         @staticmethod
         def get_salary_value():
             try:
-                obj = backend_models.SettingsModel.objects.filter(type="scheduler_personal")[0]
+                obj = django_models.SettingsModel.objects.filter(type="scheduler_personal")[0]
                 objects = []
                 for x in str(obj.text).strip().split("|"):
                     objects.append(str(x).strip())
@@ -677,11 +883,11 @@ class DjangoClass:
                             new_user = True
 
                         try:
-                            author = backend_models.UserModel.objects.get(
+                            author = django_models.UserModel.objects.get(
                                 user=user
                             )
                         except Exception as error:
-                            author = backend_models.UserModel.objects.create(
+                            author = django_models.UserModel.objects.create(
                                 user=user
                             )
 
@@ -722,7 +928,7 @@ class DjangoClass:
                             author.category = worker.category_
                         author.save()
                         try:
-                            group_model = backend_models.GroupModel.objects.get_or_create(name="user")[0]
+                            group_model = django_models.GroupModel.objects.get_or_create(name="user")[0]
                             group_model.users.add(author)
                         except Exception as error_:
                             pass
@@ -753,7 +959,7 @@ class DjangoClass:
                         user.last_name = "Andrienko"
                         user.first_name = "Bogdan"
                         user.save()
-                        author = backend_models.UserModel.objects.get_or_create(user=user)[0]
+                        author = django_models.UserModel.objects.get_or_create(user=user)[0]
                         author.password = password_
                         author.last_name = "Andrienko"
                         author.first_name = "Bogdan"
@@ -772,8 +978,8 @@ class DjangoClass:
                     groups = ["user", "moderator", "superuser"]
                 for grp in groups:
                     try:
-                        action_model = backend_models.ActionModel.objects.get_or_create(action=grp)[0]
-                        group_model = backend_models.GroupModel.objects.get_or_create(name=grp)[0]
+                        action_model = django_models.ActionModel.objects.get_or_create(action=grp)[0]
+                        group_model = django_models.GroupModel.objects.get_or_create(name=grp)[0]
                         group_model.actions.add(action_model)
                         group_model.save()
                     except Exception as error:
@@ -784,7 +990,18 @@ class DjangoClass:
 
     class PaginationClass:
         @staticmethod
-        def paginate(request, objects, num_page):
+        def paginate(page_number: int, object_list: any, limit_per_page: int) -> any:
+            paginator = Paginator(object_list, limit_per_page)
+            try:
+                page = paginator.page(int(page_number))
+            except PageNotAnInteger:
+                page = paginator.page(1)
+            except EmptyPage:
+                page = paginator.page(paginator.num_pages)
+            return page
+
+        @staticmethod
+        def paginate_old(request, objects, num_page):
             paginator = Paginator(objects, num_page)
             pages = request.GET.get('page')
             try:
@@ -797,7 +1014,7 @@ class DjangoClass:
 
     @staticmethod
     def check_access(author, slug=""):
-        if backend_models.GroupModel.objects.filter(
+        if django_models.GroupModel.objects.filter(
                 users=author,
                 name=slug
         ).count() > 0:

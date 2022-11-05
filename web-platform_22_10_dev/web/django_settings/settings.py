@@ -13,33 +13,50 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    SECRET_KEY=(str, "1 secret_key 1"),
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(str, ""),
+    CORS_ALLOW_ALL_ORIGINS=(bool, False),
+    CORS_URLS_REGEX=(str, ""),
+    SQL_ENGINE=(str, "django.db.backends.sqlite3"),
+    SQL_DATABASE=(str, "database/db.sqlite3"),
+    SQL_USER=(str, "django_user"),
+    SQL_PASSWORD=(str, "12345"),
+    SQL_HOST=(str, "127.0.0.1"),
+    SQL_PORT=(str, "5432"),
+    REDIS_LOCATION=(str, "rediss://12345@127.0.0.1:3697/0"),
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, 'django_settings/.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7@#f=afmik5@8ns)ob0t!5v-_hmb^jnubht6%iyn)-^da57i9@'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DEBUG", True)
-DEBUG = True
-SQLITE = True
-LOGGING = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*']
-# if DEBUG:
-#     ALLOWED_HOSTS = ['*']
-# else:
-#     ALLOWED_HOSTS = [os.environ.get("DJANGO_ALLOWED_HOSTS", "*")]
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_URLS_REGEX = r"^/api/.*$"
+ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
+CORS_ALLOW_ALL_ORIGINS = env('CORS_ALLOW_ALL_ORIGINS')
+if env('CORS_URLS_REGEX') == "*":
+    CORS_URLS_REGEX = r"^/.*"
+elif env('CORS_URLS_REGEX') == "":
+    pass
+else:
+    CORS_URLS_REGEX = env('CORS_URLS_REGEX')
+
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:8000",
 #     "http://localhost:3000",
-#
+
 #     "http://127.0.0.1:8000",
 #     "http://127.0.0.1:3000",
 # ]
@@ -62,8 +79,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'django_app',
-    # 'django_drf_todo_list',
-    # 'django_mvt_todo_list',
+    'django_drf_todo_list',
+    'django_mvt_todo_list',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +116,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'django.template.context_processors.request',
+
                 'django_mvt_todo_list.context_processors.todo_count',
             ],
         },
@@ -112,46 +130,26 @@ WSGI_APPLICATION = 'django_settings.wsgi.application'
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
 
+SQL_ENGINE = env("SQL_ENGINE")
+if SQL_ENGINE == "django.db.backends.sqlite3":
+    SQL_DATABASE = Path(BASE_DIR, env("SQL_DATABASE"))
+else:
+    SQL_DATABASE = env("SQL_DATABASE")
+SQL_USER = env("SQL_USER")
+SQL_PASSWORD = env("SQL_PASSWORD")
+SQL_HOST = env("SQL_HOST")
+SQL_PORT = env("SQL_PORT")
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'database/db.sqlite3',
+    "default": {
+        "ENGINE": SQL_ENGINE,
+        "NAME": SQL_DATABASE,
+        "USER": SQL_USER,
+        "PASSWORD": SQL_PASSWORD,
+        "HOST": SQL_HOST,
+        "PORT": SQL_PORT,
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-#         "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
-#         "USER": os.environ.get("SQL_USER", "user"),
-#         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-#         "HOST": os.environ.get("SQL_HOST", "localhost"),
-#         "PORT": os.environ.get("SQL_PORT", "5432"),
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'django_db',
-#         'USER': 'django_usr',
-#         'PASSWORD': '31284bogdan',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'django_db',
-#         'USER': 'root',
-#         'PASSWORD': '12345qwerty',
-#         'HOST': 'localhost',  # Or an IP Address that your DB is hosted on
-#         'PORT': '3306',
-#     }
-# }
 
 CACHES = {
     'default': {
@@ -159,15 +157,15 @@ CACHES = {
     },
     'special': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'cache_table_temp',
+        'LOCATION': 'cache_table',
         'TIMEOUT': '120',
         'OPTIONS': {
             # "MAX_ENTIES": 200,
         }
     },
-    # 'extra': {  # BD
+    # 'extra': {
     #     'BACKEND': 'django_redis.cache.RedisCache',
-    #     'LOCATION': 'rediss://12345qwertY!@127.0.0.1:3697/0',
+    #     'LOCATION': env("REDIS_LOCATION")',
     #     'TIMEOUT': '240',
     #     'OPTIONS': {
     #         # "MAX_ENTIES": 200,
@@ -198,7 +196,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 # LANGUAGE_CODE = 'en-US'
-# LANGUAGE_CODE = 'ru-RU'
 LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Etc/GMT-6'
@@ -277,16 +274,16 @@ MEDIA_ROOT = Path(BASE_DIR, 'static/media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # drf
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAdminUser',
-        # 'rest_framework.permissions.IsAuthenticated',
-        # 'rest_framework.permissions.AllowAny',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAdminUser',
+#         # 'rest_framework.permissions.IsAuthenticated',
+#         # 'rest_framework.permissions.AllowAny',
+#     ),
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     ),
+# }
 # from rest_framework.parsers import JSONParser, MultiPartParser
 # REST_FRAMEWORK = {
 #     'DEFAULT_PARSER_CLASSES': [
@@ -297,35 +294,35 @@ REST_FRAMEWORK = {
 # drf
 
 # jwt
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
-    'JTI_CLAIM': 'jti',
-
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=2),
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#     'UPDATE_LAST_LOGIN': True,
+#
+#     'ALGORITHM': 'HS256',
+#     'SIGNING_KEY': SECRET_KEY,
+#     'VERIFYING_KEY': None,
+#     'AUDIENCE': None,
+#     'ISSUER': None,
+#     'JWK_URL': None,
+#     'LEEWAY': 0,
+#
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+#     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+#     'USER_ID_FIELD': 'id',
+#     'USER_ID_CLAIM': 'user_id',
+#     'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+#
+#     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+#     'TOKEN_TYPE_CLAIM': 'token_type',
+#     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+#
+#     'JTI_CLAIM': 'jti',
+#
+#     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+#     'SLIDING_TOKEN_LIFETIME': timedelta(days=1),
+#     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=2),
+# }
 # jwt

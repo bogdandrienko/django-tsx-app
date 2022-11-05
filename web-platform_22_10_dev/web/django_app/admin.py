@@ -1,160 +1,166 @@
 from django.contrib import admin
+from rest_framework_simplejwt import token_blacklist
 from django_app import models as django_models, serializers as django_serializers, utils as django_utils
-
 
 # Register your models here.
 
 
-class TokenModelAdmin(admin.ModelAdmin):
+admin.site.site_header = 'Панель управления'  # default: "Django Administration"
+admin.site.index_title = 'Администрирование сайта'  # default: "Site administration"
+admin.site.site_title = 'Администрирование'  # default: "Django site admin"
+
+
+class ExamplesModelAdmin(admin.ModelAdmin):
     """
-    Настройки отображения, фильтрации и поиска модели:'TokenModel' на панели администратора
+    Настройки отображения, фильтрации и поиска модели:'ExamplesModel' на панели администратора
     """
 
+    # form = ExamplesModelForm
+
+    # Поля, которые нужно отображать в заголовке, на панели администратора
     list_display = (
-        'user',
-        'token',
-        'created',
-        'updated'
+        'binary_field',
+        'boolean',
+        'null_boolean',
+        'char',
+        'text',
+        'slug',
+        'email',
+        'url_field',
+        'genericipaddress_field',
+        'integer',
+        'big_integer',
+        'positive_integer',
+        'float_field',
+        'decimal_field',
+        'datetime_field',
+        'date_field',
+        'time_field',
+        'duration_field',
+        'file_field',
+        'image',
+        'foreign_key_field',
+        'one_to_one_field',
     )
+
+    # Поля, которые отображаются как ссылки для перехода в детали модели
     list_display_links = (
-        'user',
-        'token',
-        'created'
+        'binary_field',
+        'boolean',
     )
+
+    # Поля, которые можно редактировать прям из общего списка
     list_editable = (
-        'updated',
+        'text',
+        'slug',
     )
+
+    # Поля, которые отображаются как поле "группы" в пользователе, для моделей many_to_many_field
+    filter_horizontal = ('many_to_many_field',)
+
+    # Поля, которые нужно отображать при фильтрации, на панели администратора
     list_filter = (
-        'user',
-        'token',
-        'created',
-        'updated'
+        'binary_field',
+        'boolean',
+        'null_boolean',
+        'char',
+        'text',
+        'slug',
+        'email',
+        'url_field',
+        'genericipaddress_field',
+        'integer',
+        'big_integer',
+        'positive_integer',
+        'float_field',
+        'decimal_field',
+        'datetime_field',
+        'date_field',
+        'time_field',
+        'duration_field',
+        'file_field',
+        'image',
+        'foreign_key_field',
+        'one_to_one_field',
+        'many_to_many_field',
     )
+
+    # Поля, которые нужно отображать при создании модели, на панели администратора
+    # fields          = ('id',)
+
+    # Поля, которые нужно отображать сгруппированно при создании модели, на панели администратора
     fieldsets = (
-        ('Основное', {'fields': (
-            'user',
-            'token',
-            'created',
-            'updated'
+        ('binary_data', {'fields': (
+            'binary_field',
+        )}),
+        ('boolean_data', {'fields': (
+            'boolean',
+            'null_boolean',
+        )}),
+        ('char_data', {'fields': (
+            'char',
+            'text',
+            'slug',
+            'email',
+            'url_field',
+            'genericipaddress_field',
+        )}),
+        ('numeric_data', {'fields': (
+            'integer',
+            'big_integer',
+            'positive_integer',
+            'float_field',
+            'decimal_field',
+        )}),
+        ('datetime_data', {'fields': (
+            'datetime_field',
+            'date_field',
+            'time_field',
+            'duration_field',
+        )}),
+        ('file_data', {'fields': (
+            'file_field',
+            'image',
+        )}),
+        ('relations_data', {'fields': (
+            'foreign_key_field',
+            'one_to_one_field',
+            'many_to_many_field',
         )}),
     )
+
+    # Поля, которые не нужно отображать при создании модели, на панели администратора |
+    # exclude         = ['id',]
+
+    # Поля, которые нужно учитывать при поиске, на панели администратора | Не включать связанные поля(ForeignKey...)
     search_fields = [
-        'user',
-        'token',
-        'created',
-        'updated'
+        'binary_field',
+        'boolean',
+        'null_boolean',
+        'char',
+        'text',
+        'slug',
+        'email',
+        'url_field',
+        'genericipaddress_field',
+        'integer',
+        'big_integer',
+        'positive_integer',
+        'float_field',
+        'decimal_field',
+        'datetime_field',
+        'date_field',
+        'time_field',
+        'duration_field',
+        'file_field',
+        'image',
+        'foreign_key_field',
+        'one_to_one_field',
+        'many_to_many_field',
     ]
 
-
-admin.site.register(django_models.TokenModel, TokenModelAdmin)
-
-
-class TodoAdmin(admin.ModelAdmin):
-    """
-    Настройки отображения, фильтрации и поиска модели:'Todo' на панели администратора
-    """
-
-    list_display = (
-        'title',
-        'description',
-        'avatar',
-        'is_completed',
-        'created',
-        'updated'
-    )
-    list_display_links = (
-        'title',
-        'description',
-    )
-    list_editable = (
-        'is_completed',
-    )
-    list_filter = (
-        'title',
-        'description',
-        'avatar',
-        'is_completed',
-        'created',
-        'updated'
-    )
-    fieldsets = (
-        ('Основное', {'fields': (
-            'title',
-            'description',
-            'avatar',
-            'is_completed',
-            'created',
-            'updated'
-        )}),
-    )
-    search_fields = [
-        'title',
-        'description',
-        'avatar',
-        'is_completed',
-        'created',
-        'updated'
-    ]
-
-
-admin.site.register(django_models.Todo, TodoAdmin)
-
-
-class ResultListAdmin(admin.ModelAdmin):
-    """
-    Настройки отображения, фильтрации и поиска модели:'ResultList' на панели администратора
-    """
-
-    list_display = (
-        'user',
-        'title',
-        'description',
-        'is_pay',
-        'addiction_file_field',
-        'created',
-        'updated'
-    )
-    list_display_links = (
-        'user',
-        'title',
-    )
-    list_editable = (
-        'is_pay',
-    )
-    list_filter = (
-        'user',
-        'title',
-        'description',
-        'is_pay',
-        'addiction_file_field',
-        'created',
-        'updated'
-    )
-    fieldsets = (
-        ('Основное', {'fields': (
-            'user',
-            'title',
-            'description',
-            'is_pay',
-            'addiction_file_field',
-        )}),
-        ('Дополнительное', {'fields': (
-            'created',
-            'updated'
-        )}),
-    )
-    search_fields = [
-        'user',
-        'title',
-        'description',
-        'is_pay',
-        'addiction_file_field',
-        'created',
-        'updated'
-    ]
-
-
-admin.site.register(django_models.ResultList, ResultListAdmin)
+    # Поля, которые нужно добавлять связанными при создании модели, на панели администратора
+    # inlines         = [ExamplesModelInline]
 
 
 class UserModelAdmin(admin.ModelAdmin):
@@ -289,153 +295,374 @@ class UserModelAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(django_models.UserModel, UserModelAdmin)
+class TokenModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'TokenModel' на панели администратора
+    """
 
-# from backend_native.models import IdeaTestCommentModel, IdeaTestModel, IdeaTestRatingModel
-#
-#
-# class IdeaModelAdmin(admin.ModelAdmin):
-#     """
-#     Idea Model Admin
-#     """
-#     list_display = (
-#         'author',
-#         'name_char_field',
-#         'category_slug_field',
-#         'short_description_char_field',
-#         'full_description_text_field',
-#         'avatar_image_field',
-#         'addiction_file_field',
-#         'is_visible',
-#         'created_datetime_field',
-#         'register_datetime_field',
-#     )
-#     list_filter = (
-#         'author',
-#         'name_char_field',
-#         'category_slug_field',
-#         'short_description_char_field',
-#         'full_description_text_field',
-#         'avatar_image_field',
-#         'addiction_file_field',
-#         'is_visible',
-#         'created_datetime_field',
-#         'register_datetime_field',
-#     )
-#     fieldsets = (
-#         ('Автор',
-#          {'fields': ('author',)}
-#          ),
-#         ('Имя и категория',
-#          {'fields': ('name_char_field', 'category_slug_field',)}
-#          ),
-#         ('Описание',
-#          {'fields': ('short_description_char_field', 'full_description_text_field',)}
-#          ),
-#         ('Приложения',
-#          {'fields': ('avatar_image_field', 'addiction_file_field',)}
-#          ),
-#         ('Отображение',
-#          {'fields': ('is_visible',)}
-#          ),
-#         ('Дата и время',
-#          {'fields': ('created_datetime_field', 'register_datetime_field',)}
-#          ),
-#     )
-#     search_fields = [
-#         'author',
-#         'name_char_field',
-#         'category_slug_field',
-#         'short_description_char_field',
-#         'full_description_text_field',
-#         'avatar_image_field',
-#         'addiction_file_field',
-#         'is_visible',
-#         'created_datetime_field',
-#         'register_datetime_field',
-#     ]
-#
-#
-# admin.site.register(IdeaTestModel, IdeaModelAdmin)
-#
-#
-# class IdeaCommentModelAdmin(admin.ModelAdmin):
-#     """
-#     Idea Comment Model Admin
-#     """
-#     list_display = (
-#         'author',
-#         'idea_foreign_key_field',
-#         'text_field',
-#         'datetime_field',
-#     )
-#     list_filter = (
-#         'author',
-#         'idea_foreign_key_field',
-#         # 'text_field',
-#         'datetime_field',
-#     )
-#     fieldsets = (
-#         ('Автор',
-#          {'fields': ('author',)}
-#          ),
-#         ('Идея',
-#          {'fields': ('idea_foreign_key_field',)}
-#          ),
-#         ('Комментарий',
-#          {'fields': ('text_field',)}
-#          ),
-#         ('Дата',
-#          {'fields': ('datetime_field',)}
-#          ),
-#     )
-#     search_fields = [
-#         'author',
-#         'idea_foreign_key_field',
-#         'text_field',
-#         'datetime_field',
-#     ]
-#
-#
-# admin.site.register(IdeaTestCommentModel, IdeaCommentModelAdmin)
-#
-#
-# class IdeaRatingModelAdmin(admin.ModelAdmin):
-#     """
-#     Idea Rating Model Admin
-#     """
-#     list_display = (
-#         'author',
-#         'idea_foreign_key_field',
-#         'status_boolean_field',
-#         'datetime_field',
-#     )
-#     list_filter = (
-#         'author',
-#         'idea_foreign_key_field',
-#         'status_boolean_field',
-#         'datetime_field',
-#     )
-#     fieldsets = (
-#         ('Автор',
-#          {'fields': ('author',)}
-#          ),
-#         ('Идея',
-#          {'fields': ('idea_foreign_key_field',)}
-#          ),
-#         ('Статус',
-#          {'fields': ('status_boolean_field',)}
-#          ),
-#         ('Дата',
-#          {'fields': ('datetime_field',)}
-#          ),
-#     )
-#     search_fields = [
-#         'author',
-#         'idea_foreign_key_field',
-#         'status_boolean_field',
-#         'datetime_field',
-#     ]
-#
-#
-# admin.site.register(IdeaTestRatingModel, IdeaRatingModelAdmin)
+    list_display = (
+        'user',
+        'token',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'user',
+        'token',
+        'created'
+    )
+    list_editable = (
+        'updated',
+    )
+    list_filter = (
+        'user',
+        'token',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'user',
+            'token',
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'user',
+        'token',
+        'created',
+        'updated'
+    ]
+
+
+class ActionModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'ActionModel' на панели администратора
+    """
+
+    list_display = (
+        'action',
+    )
+    list_display_links = (
+        'action',
+    )
+    list_editable = (
+    )
+    list_filter = (
+        'action',
+    )
+    filter_horizontal = (
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'action',
+        )}),
+    )
+    search_fields = [
+        'action',
+    ]
+
+
+class GroupModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'GroupModel' на панели администратора
+    """
+
+    list_display = (
+        'name',
+    )
+    list_display_links = (
+        'name',
+    )
+    list_editable = (
+    )
+    list_filter = (
+        'name',
+        'users',
+        'actions',
+    )
+    filter_horizontal = (
+        'users',
+        'actions',
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'name',
+            'users',
+            'actions',
+        )}),
+    )
+    search_fields = [
+        'name',
+        'users',
+        'actions',
+    ]
+
+
+class OutstandingTokenAdmin(token_blacklist.admin.OutstandingTokenAdmin):
+
+    def has_delete_permission(self, *args, **kwargs):
+        return True
+
+
+class SettingsModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'SettingsModel' на панели администратора
+    """
+
+    list_display = (
+        'type',
+        'value',
+    )
+    list_display_links = (
+        'type',
+    )
+    list_editable = (
+        'value',
+    )
+    list_filter = (
+        'type',
+        'value',
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'type',
+            'value',
+        )}),
+    )
+    search_fields = [
+        'type',
+        'value',
+    ]
+
+
+class LoggingModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'LoggingModel' на панели администратора
+    """
+
+    list_display = (
+        'username',
+        'ip',
+        'path',
+        'method',
+        'text',
+        'created'
+    )
+    list_display_links = (
+        'username',
+        'ip',
+        'path',
+        'method',
+    )
+    list_editable = (
+    )
+    list_filter = (
+        'username',
+        'ip',
+        'path',
+        'method',
+        'text',
+        'created'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'username',
+            'ip',
+            'path',
+            'method',
+            'text',
+            'created',
+        )}),
+    )
+    search_fields = [
+        'username',
+        'ip',
+        'path',
+        'method',
+        'text',
+        'created'
+    ]
+
+
+class NotificationModelAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'IdeaModel' на панели администратора
+    """
+
+    list_display = (
+        "author",
+        "target_group_model",
+        "target_user_model",
+        "name",
+        "place",
+        "description",
+        "is_visible",
+        "created",
+        "updated",
+    )
+    list_display_links = (
+        "author",
+        "target_group_model",
+        "target_user_model",
+        "name",
+        "place",
+    )
+    list_editable = (
+        "is_visible",
+    )
+    list_filter = (
+        "author",
+        "target_group_model",
+        "target_user_model",
+        "name",
+        "place",
+        "description",
+        "is_visible",
+        "created",
+        "updated",
+    )
+    fieldsets = (
+        ("Основное", {"fields": (
+            "author",
+            "target_group_model",
+            "target_user_model",
+            "name",
+            "place",
+            "description",
+            "is_visible",
+            "created",
+            "updated",
+        )}),
+    )
+    search_fields = [
+        "author",
+        "target_group_model",
+        "target_user_model",
+        "name",
+        "place",
+        "description",
+        "is_visible",
+        "created",
+        "updated",
+    ]
+
+
+class TodoAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'Todo' на панели администратора
+    """
+
+    list_display = (
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'title',
+        'description',
+    )
+    list_editable = (
+        'is_completed',
+    )
+    list_filter = (
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'title',
+            'description',
+            'avatar',
+            'is_completed',
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'title',
+        'description',
+        'avatar',
+        'is_completed',
+        'created',
+        'updated'
+    ]
+
+
+class ResultListAdmin(admin.ModelAdmin):
+    """
+    Настройки отображения, фильтрации и поиска модели:'ResultList' на панели администратора
+    """
+
+    list_display = (
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    )
+    list_display_links = (
+        'user',
+        'title',
+    )
+    list_editable = (
+        'is_pay',
+    )
+    list_filter = (
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    )
+    fieldsets = (
+        ('Основное', {'fields': (
+            'user',
+            'title',
+            'description',
+            'is_pay',
+            'addiction_file_field',
+        )}),
+        ('Дополнительное', {'fields': (
+            'created',
+            'updated'
+        )}),
+    )
+    search_fields = [
+        'user',
+        'title',
+        'description',
+        'is_pay',
+        'addiction_file_field',
+        'created',
+        'updated'
+    ]
+
+
+admin.site.register(django_models.ExamplesModel, ExamplesModelAdmin)
+admin.site.register(django_models.UserModel, UserModelAdmin)
+admin.site.register(django_models.TokenModel, TokenModelAdmin)
+admin.site.register(django_models.ActionModel, ActionModelAdmin)
+admin.site.register(django_models.GroupModel, GroupModelAdmin)
+
+admin.site.unregister(token_blacklist.models.OutstandingToken)
+admin.site.register(token_blacklist.models.OutstandingToken, OutstandingTokenAdmin)
+
+admin.site.register(django_models.SettingsModel, SettingsModelAdmin)
+admin.site.register(django_models.LoggingModel, LoggingModelAdmin)
+admin.site.register(django_models.NotificationModel, NotificationModelAdmin)
+
+admin.site.register(django_models.Todo, TodoAdmin)
+admin.site.register(django_models.ResultList, ResultListAdmin)

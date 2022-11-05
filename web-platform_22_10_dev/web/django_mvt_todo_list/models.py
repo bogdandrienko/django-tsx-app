@@ -98,7 +98,6 @@ class Todo(models.Model):
         ordering = ('-updated',)
         verbose_name = 'Todo'
         verbose_name_plural = 'Todos'
-        db_table = 'django_mvt_todo_list_model_table'
 
     def __str__(self):
         if self.is_completed:

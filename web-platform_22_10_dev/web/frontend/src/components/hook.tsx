@@ -88,13 +88,16 @@ export const usePosts1 = (objs, type, result, isAnswer, search) => {
 };
 
 // @ts-ignore
-export const usePosts2 = (objs, search) => {
+export const usePosts2 = (objs, search: string) => {
+  if (objs.length < 1) {
+    return [];
+  }
   // @ts-ignore
   const objects = Object.entries(objs);
   // @ts-ignore
-  return objects.filter((obj) =>
+  return objects.filter((obj: dict) =>
     // @ts-ignore
-    obj["Зона разгрузки"].toLowerCase().includes(search.toLowerCase())
+    obj["1"]["Зона разгрузки"].toLowerCase().includes(search.toLowerCase())
   );
 };
 
