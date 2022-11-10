@@ -10,8 +10,6 @@ urlpatterns = [
     re_path(r'^token_jwt/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     re_path(r'^token_jwt/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
 
-    re_path(r'^get_all_users/$', views.get_all_users, name='get_all_users'),
-
     path('', views.index_f, name=''),
     path('index/', views.index_f, name='index'),
     path('home/', views.index_f, name='home'),

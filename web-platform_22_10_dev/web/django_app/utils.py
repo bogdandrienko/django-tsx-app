@@ -282,7 +282,7 @@ class DjangoClass:
 
                             # time.sleep(round(random.uniform(0.5, 2.0), 2))  # TODO debug delay
 
-                            time_start = time.perf_counter()  # TODO check elapsed time
+                            time_start_all = time.perf_counter()  # TODO check all elapsed time
 
                             request = DjangoClass.DRFClass.RequestClass(request=request, pk=pk)
 
@@ -290,7 +290,12 @@ class DjangoClass:
                                 return Response(data={"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
                             if request.user:
                                 update_last_login(sender=None, user=request.user)
+
+                            time_start_func = time.perf_counter()  # TODO check func elapsed time
+
                             result = func(request)  # TODO call main function
+
+                            time_stop_func = time.perf_counter()  # TODO check func elapsed time
 
                             logging_response = django_models.SettingsModel.get_value(type_="logging_response")
                             if logging_response and logging_response.split("logging_response=")[1] == "True":
@@ -321,8 +326,12 @@ class DjangoClass:
                                        f"{request.action} response: {print_response}"
                                 print(text)
 
-                            print("elapsed time: ",
-                                  f"{round(time.perf_counter() - time_start, 3)}")  # TODO check elapsed time
+                                print("all elapsed time: ",
+                                      f"{round(time.perf_counter() - time_start_all, 5)}"
+                                      )  # TODO check all elapsed time
+                                print("func elapsed time: ",
+                                      f"{round(time_stop_func - time_start_func, 5)}"
+                                      )  # TODO check func elapsed time
                             if result:
                                 return Response(data={"response": result}, status=status.HTTP_200_OK)
                             return Response(data={"error": "METHOD_NOT_ALLOWED"},

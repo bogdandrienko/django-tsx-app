@@ -1,28 +1,43 @@
+import collections
+
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User, Group, update_last_login
+from django.http import HttpRequest
+from django.shortcuts import render
+from django.views import View
+from django.views.decorators.cache import cache_page
+from django.core.cache import caches
+from django.db import connection, transaction
+from django.http import JsonResponse
+
 import datetime
 import random
 import re
 import time
 import openpyxl
-from django.conf import settings
-from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User, update_last_login
-from django.http import HttpRequest
-from django.shortcuts import render
-from rest_framework import status
+from django_settings.celery import app as celery_instance
+from celery.result import AsyncResult
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 
 from django_app import models as django_models, serializers as django_serializers, utils as django_utils, \
-    signals as django_signals
+    signals as django_signals, celery as django_celery
 
-http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 django_signals.register_all_signals()
+http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+
+LocMemCache = caches["default"]
+DatabaseCache = caches["special"]
+# RedisCache = caches["extra"]
 
 
 # Create your views here.
 
+# @cache_page(timeout=1)
 def index_f(request):
     try:
         context = {}
@@ -33,9 +48,25 @@ def index_f(request):
         return django_utils.DjangoClass.DRFClass.RequestOldClass.return_global_error(request=request, error=error)
 
 
+# @cache_page(timeout=120)
 @django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
 def captcha_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
     if request.method == "GET":
+
+        def caching(key: str, value: any, cache_instance: any, timeout: int) -> any:
+            if value is not None:
+                cache_instance.set(key, value, timeout=timeout)
+            return cache_instance.get(key)
+
+        # users_list = caching(
+        #     key="users_list",
+        #     value=[{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
+        #     cache_instance=LocMemCache,
+        #     timeout=3
+        # )
+        users_list = [{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()]
+        print("cache_f users_list: ", users_list)
+
         return "Вы не робот!"
 
 
@@ -172,267 +203,3 @@ def report_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
                 except Exception as error:
                     print(error)
                     return {"data": []}
-
-
-@api_view(http_method_names=http_method_names)
-def result_f(request: HttpRequest, pk=0) -> Response:
-    try:
-        time.sleep(round(random.uniform(1.0, 2.5), 2))
-
-        # TODO Извлечение из "request: HttpRequest" нужных полей
-        # front => back
-        # GET: request.GET (api/todo/?page=1&limit=10&search=all)  # READ
-        # DELETE: request.GET (api/todo/?filter=all)  # DELETE
-        # POST: request.data | request.POST | request.FILES  # CREATE
-        # PUT: request.data | request.POST | request.FILES  # UPDATE
-        # PATCH: request.data | request.POST | request.FILES  # UPDATE
-
-        # print('data: ', request.data)  # POST: JSON | POST: FormData
-        # print('GET: ', request.GET)  # GET: url
-        # print('POST: ', request.POST)  # POST: FormData
-        # print('FILES: ', request.FILES)  # POST: FormData
-        #
-        method = request.method
-        # print('method: ', method)
-        # action = request.META.get("HTTP_AUTHORIZATION", "action=0;token=0;").split('action=')[1].split(';')[0]
-        # print('action: ', action)
-        # print('path: ', request.path)
-        # print('ip: ', request.META.get("REMOTE_ADDR"))
-        #
-        # # TODO create and return token
-        # # user_obj = User.objects.get(id=1)
-        # # token_str = django_models.TokenModel.create_token(user=user_obj)
-        # # print('token_str: ', token_str)
-        #
-        # # TODO Определение пользователя по токену (нужно/не нужно в конструкторе декоратора)
-        # auth = False
-        # if auth is True:
-        #     try:
-        #         # token = request.META.get("HTTP_AUTHORIZATION", "action=0;token=0;").split('token=')[1].split(';')[0]
-        #         # user = django_models.TokenModel.objects.get(token=token).user
-        #         # user_model = django_models.UserModel.objects.get(user=user)
-        #         pass
-        #     except Exception as error:
-        #         return Response(data={"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
-        # else:
-        #     token = None
-        #     user = None
-        #     user_model = None
-        # # TODO Логирование действий
-        # # TODO
-
-        if pk:
-            if method == "GET":
-                obj = django_models.ResultList.objects.get(id=pk)
-                response = django_serializers.ResultListSerializer(obj, many=False).data  # python object -> JSON
-                return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
-            elif method == "POST":
-                # {"username": "user12346", "password": "qwertY!212", "position": "Программист"}
-                username = request.data.get("username", "")
-                password = request.data.get("password", "")
-                position = request.data.get("position", "")
-                if username and password:
-                    if re.match(r"^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password):
-                        user = User.objects.create(
-                            username=username,
-                            password=make_password(password)
-                        )
-                        user.profile.position = position
-                        user.profile.save()
-                        return Response(data={"response:": "Успешно"}, status=status.HTTP_201_CREATED)
-                    else:
-                        return Response(data={"error:": "Ваш пароль недостаточно сложный"},
-                                        status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    return Response(data={"error:": "Данные не заполнены"}, status=status.HTTP_400_BAD_REQUEST)
-            elif method == "PUT" or method == "PATCH":
-                # {"title": "Новая 333", "description": "нов 3", "is_pay": false}
-                title = request.data.get("title", None)
-                description = request.data.get("description", None)
-                is_pay = request.data.get("is_pay", None)
-
-                obj = django_models.ResultList.objects.get(id=pk)
-                if title is not None and obj.title != title:
-                    obj.title = title
-                if description is not None and obj.description != description:
-                    obj.description = description
-                if is_pay is not None and obj.is_pay != is_pay:
-                    obj.is_pay = is_pay
-                obj.save()
-                return Response(data={"response:": "Successfully update"}, status=status.HTTP_200_OK)
-            elif request.method == "DELETE":
-                django_models.ResultList.objects.get(id=pk).delete()
-                return Response(data={"response:": "Successfully delete"}, status=status.HTTP_200_OK)
-        else:
-            if method == "GET":
-                # ?page=1&limit=10&sort_by=name%20(asc)&filter_by=pay%20(true)&search=95
-                page = request.GET.get("page", 1)
-                limit = request.GET.get("limit", 10)
-                search = request.GET.get("search", "")
-                filter_by = request.GET.get("filter_by", "")
-                sort_by = request.GET.get("sort_by", "")
-
-                objs = django_models.ResultList.objects.all()
-                if search:
-                    objs = objs.filter(title__contains=search, description__contains=search)
-                    # objs[0].is_done()
-
-                match filter_by:
-                    case "pay (true)":
-                        objs = objs.filter(is_pay=True)
-                    case "pay (false)":
-                        objs = objs.filter(is_pay=False)
-                    case "":
-                        pass
-                    case _:
-                        pass
-
-                match sort_by:
-                    case "date (asc)":
-                        objs = objs.order_by('-updated')
-                    case "date (desc)":
-                        objs = objs.order_by('updated')
-                    case "name (desc)":
-                        objs = objs.order_by('title')
-                    case "name (asc)":
-                        objs = objs.order_by('-title')
-                    case "":
-                        pass
-                    case _:
-                        pass
-
-                objs = django_utils.DjangoClass.PaginationClass.paginate(
-                    page_number=page, object_list=objs, limit_per_page=limit
-                )
-                # TODO написать класс-конструктор для создания сериализатора "на лету"
-                response = django_serializers.ResultListSerializer(objs, many=True).data
-                # TODO Успешный ответ сервера "HTTP_200_OK"
-                return Response(data={"response": response}, status=status.HTTP_200_OK)
-            elif method == "POST":
-                # {"title": "Новая 2", "description": "нов"}
-                title = request.data.get("title", None)
-                description = request.data.get("description", None)
-                if title is None:
-                    return Response(data={"error": "Not have any data"}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    django_models.ResultList.objects.create(title=title, description=description)
-                    return Response(data={"response": "Successfully create"}, status=status.HTTP_201_CREATED)
-
-        # TODO Возврат ошибки сервера "HTTP_405_METHOD_NOT_ALLOWED" при несовпадении метода и/или действия
-        return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-    # TODO Поимка исключений и возврат ошибки сервера "HTTP_400_BAD_REQUEST" с описанием ошибки
-    except Exception as error:
-        # TODO Логирование ошибок
-        # TODO
-        if settings.DEBUG:
-            print(f"error {error}")
-        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(http_method_names=http_method_names)
-def user_f(request: HttpRequest, pk=0) -> Response:
-    try:
-        time.sleep(round(random.uniform(1.0, 2.5), 2))
-
-        if pk:
-            if request.method == "GET":
-                obj = User.objects.get(id=pk)
-                response = django_serializers.UserSerializer(obj, many=False).data
-                return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
-                # return JsonResponse(data={"response:": "Успешно"}, safe=True)  # TODO
-        else:
-            if request.method == "GET":
-                obj = User.objects.get(id=pk)
-                response = django_serializers.UserSerializer(obj, many=False).data
-                return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
-            if request.method == "POST":
-                # {"username": "user12346", "password": "qwertY!212",
-                #  "last_name": "UserSurname", "first_name": "UserName", "patronymic": "UserPatr"}
-                username = request.data.get("username", "")
-                password = request.data.get("password", "")
-                last_name = request.data.get("last_name", "")
-                first_name = request.data.get("first_name", "")
-                patronymic = request.data.get("patronymic", "")
-                user = User.objects.create(
-                    username=username,
-                    password=make_password(password)
-                )
-                django_models.UserModel.objects.create(
-                    user=user,
-                    last_name=last_name,
-                    first_name=first_name,
-                    patronymic=patronymic,
-                )
-                return Response(data={"response:": "Успешно"}, status=status.HTTP_201_CREATED)
-
-                print(request)
-                print(request.data)  # TODO data
-                print(request.POST)
-                print(request.FILES)
-                print(request.GET)
-
-                # php => должен отвечать на запросы по ip+port: 192.168.101.200:8001
-                # response = request.get('192.168.101.200:8001/algoritm')
-                # response = request.post()
-
-                # all = {
-                #     "1": {"1_1"},
-                #     "2": {"1_2": {"12": None}},
-                #     "3": {"1_1"},
-                # }
-                # all["2"]["1_2"]["12"]
-
-                action = request.GET.get("action", '_')
-                if action == "setAvatar":
-                    image = request.data.get("image", None)
-                    print(image)
-                    todo = django_models.Todo.objects.create(
-                        title="11111111",
-                        description="2222222222",
-                        avatar=image,
-                    )
-                    path = todo.avatar
-                    print(type(image))
-                    print(type(image.read()))
-                    print(image.read())
-                    print(str(image))
-                    print(image)
-                    print(str(image.read()))
-                    print(len(str(image.read())))
-
-                    # with open('static/image3.jpg', 'wb') as file:
-                    #     file.write()
-
-                    print('image image ты где')
-                    return Response(data={"response": "Successful"}, status=status.HTTP_201_CREATED)
-                else:
-                    username = request.data.get("username", "")
-                    password = request.data.get("password", "")
-                    print(username, password)
-                    return Response(data={"response": "Successful"}, status=status.HTTP_201_CREATED)
-        return Response(data={"error": "METHOD_NOT_ALLOWED"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-    except Exception as error:
-        if settings.DEBUG:
-            print(f"error {error}")
-        return Response(data={"error": str(error)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(http_method_names=http_method_names)
-# @permission_classes([IsAdminUser])
-# @permission_classes([IsAuthenticated])
-@permission_classes([AllowAny])
-def get_all_users(request: HttpRequest) -> Response:
-    time.sleep(round(random.uniform(1.0, 2.5), 2))
-
-    user = request.user
-    print(user, type(user))
-    if request.user.is_superuser is False:
-        return Response(data={"response": "FORBIDDEN"}, status=status.HTTP_403_FORBIDDEN)
-
-    token = request.META.get("HTTP_AUTHORIZATION", "Bearer _").split('Bearer')[1].strip()
-    print("token:", token)
-
-    if request.method == "GET":
-        obj = User.objects.all()
-        response = django_serializers.UserSerializer(obj, many=True).data
-        return Response(data={"response": {"result": response}}, status=status.HTTP_200_OK)
