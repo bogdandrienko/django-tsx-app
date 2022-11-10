@@ -58,12 +58,12 @@ def captcha_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
                 cache_instance.set(key, value, timeout=timeout)
             return cache_instance.get(key)
 
-        # users_list = caching(
-        #     key="users_list",
-        #     value=[{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
-        #     cache_instance=LocMemCache,
-        #     timeout=3
-        # )
+        users_list = caching(
+            key="users_list",
+            value=[{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
+            cache_instance=LocMemCache,
+            timeout=3
+        )
         users_list = [{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()]
         print("cache_f users_list: ", users_list)
 
