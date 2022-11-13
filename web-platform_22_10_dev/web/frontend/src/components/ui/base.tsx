@@ -162,8 +162,6 @@ export const Base4 = ({ children }) => {
   );
 };
 
-
-
 // @ts-ignore
 export const Base5 = ({ children }) => {
   // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +171,7 @@ export const Base5 = ({ children }) => {
       <main className="d-flex vh-100 h-100">
         <h1 className="visually-hidden">Sidebars examples</h1>
 
-        <sidebar.Sidebar1/>
+        <sidebar.Sidebar2 />
 
         <div className="w-100">
           {/* <navbar.NavbarComponent3 /> */}
@@ -195,6 +193,25 @@ export const Base6 = ({ children }) => {
         <h1 className="visually-hidden">Sidebars examples</h1>
         <div className="w-100">
           <navbar.NavbarComponent4 />
+          <div className="container">{children}</div>
+          {/* <footer.FooterComponent3 /> */}
+        </div>
+      </main>
+    </body>
+  );
+};
+
+// @ts-ignore
+export const Base7 = ({ children }) => {
+  // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  return (
+    <body className="d-flex flex-column vh-100">
+      <main className="d-flex vh-100 h-100">
+        {/*<sidebar.Sidebar2 />*/}
+
+        <div className="w-100">
+          {/* <navbar.NavbarComponent3 /> */}
           <div className="container">{children}</div>
           {/* <footer.FooterComponent3 /> */}
         </div>

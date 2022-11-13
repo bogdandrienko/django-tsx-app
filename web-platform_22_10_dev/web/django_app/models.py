@@ -1793,23 +1793,22 @@ class TokenModel(models.Model):
         on_delete=models.CASCADE,
         related_name='token_user',
     )
-    token = models.SlugField(
+    token = models.CharField(
         db_column='token_db_column',
         db_index=True,
         db_tablespace='token_db_tablespace',
         error_messages=False,
         primary_key=False,
-        validators=[MinLengthValidator(0), MaxLengthValidator(300), ],
+        validators=[MinLengthValidator(0), MaxLengthValidator(150), ],
         unique=False,
         editable=True,
         blank=True,
         null=True,
         default='',
         verbose_name='Токен',
-        help_text='<small class="text-muted">SlugField [0, 300]</small><hr><br>',
+        help_text='<small class="text-muted">SlugField [0, 150]</small><hr><br>',
 
-        max_length=300,
-        allow_unicode=False,
+        max_length=150,
     )
     created = models.DateTimeField(
         db_column='created_db_column',
@@ -1857,9 +1856,9 @@ class TokenModel(models.Model):
         return f"{self.user} | {self.created} | {self.updated}"
 
     @staticmethod
-    def create_or_update_token(user: User) -> str:
-        token = make_password(f"{user.username}{user.password}_{time.strftime('%Y-%m-%d %H:%M:%S')}")
-        token_obj = TokenModel.objects.get_or_create(user=user)[0]
+    def create_or_update_token(user_obj: User) -> str:
+        token = make_password(f"{user_obj.username}{user_obj.password}_{time.strftime('%Y-%m-%d %H:%M:%S')}")
+        token_obj = TokenModel.objects.get_or_create(user=user_obj)[0]
         token_obj.token_f = token
         token_obj.save()
         return token

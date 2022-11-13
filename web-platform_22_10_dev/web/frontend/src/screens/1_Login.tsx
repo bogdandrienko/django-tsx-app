@@ -124,6 +124,32 @@ export default function Page() {
     console.log("GetOne response: ", response);
   }
 
+  async function GetDetail(event: MouseEvent<any>) {
+    try {
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {}
+    const action = "_";
+    const token =
+      "pbkdf2_sha256$390000$aWV2vUbGxC6OYns3ZQw5q5$WqX/DUYyjIjA7X42p/paeS9gYlGd3dQsGk+ZUaxdB6Y=";
+    //
+    const formData = new FormData();
+    formData.append("title", "11111  111 11");
+    formData.append("description", "11111  111 11");
+    formData.append("avatar", ideaCreateObject.avatar);
+    const config = {
+      url: `api/user/detail/`,
+      method: `GET`,
+      timeout: 5000,
+      headers: {
+        Authorization: `action=${action};token=${token};`,
+      },
+      data: formData,
+    };
+    const response = await axios(config);
+    console.log("api/user/detail/ response: ", response);
+  }
+
   // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return (
@@ -159,6 +185,11 @@ export default function Page() {
           </div>
         </header>
         <div className="container-fluid">
+          <div className="border border-dark border-1">
+            <button className="btn btn-primary m-3" onClick={GetDetail}>
+              get detail
+            </button>
+          </div>
           <div className="">
             <main className="px-md-4">
               <div className="container">

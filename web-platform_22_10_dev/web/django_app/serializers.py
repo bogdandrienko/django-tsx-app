@@ -9,7 +9,13 @@ from django_app import models as django_models, utils as django_utils
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'  # ['room_number', 'date']
+        fields = '__all__'  # ['id', 'username']
+
+
+class UserModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = django_models.UserModel
+        fields = '__all__'  # ['id', 'username']
 
 
 class TodoSerializer(serializers.ModelSerializer):

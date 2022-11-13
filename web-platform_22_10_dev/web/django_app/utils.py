@@ -14,6 +14,7 @@ from typing import Union
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User, update_last_login
+from django.core.cache import caches
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpRequest
@@ -1021,6 +1022,24 @@ class DjangoClass:
                 page = paginator.page(paginator.num_pages)
             return page
 
+    class Caching:
+        @staticmethod
+        def cache(key: str, lambda_queryset: any, cache_instance: any, timeout: int) -> any:
+            result = cache_instance.get(key)
+            if result is None:
+                result = lambda_queryset()
+                cache_instance.set(key, result, timeout=timeout)
+            return cache_instance.get(key)
+
+        def example(self):
+            LocMemCache = caches["default"]
+            DjangoClass.Caching.cache(
+                key="users_list",
+                lambda_queryset=lambda:
+                [{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
+                cache_instance=LocMemCache,
+                timeout=10
+            )
     @staticmethod
     def check_access(author, slug=""):
         if django_models.GroupModel.objects.filter(

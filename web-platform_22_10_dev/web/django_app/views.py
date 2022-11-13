@@ -32,6 +32,8 @@ http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
 LocMemCache = caches["default"]
 DatabaseCache = caches["special"]
+
+
 # RedisCache = caches["extra"]
 
 
@@ -48,24 +50,23 @@ def index_f(request):
         return django_utils.DjangoClass.DRFClass.RequestOldClass.return_global_error(request=request, error=error)
 
 
-# @cache_page(timeout=120)
 @django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
 def captcha_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
+    # for i in range(1, 1000):
+    #     User.objects.create(
+    #         username=f"user321{i}",
+    #         password=f"12345678_{i}",
+    #         email=f"123_{i}@gmail.com",
+    #     )
+
     if request.method == "GET":
-
-        def caching(key: str, value: any, cache_instance: any, timeout: int) -> any:
-            if value is not None:
-                cache_instance.set(key, value, timeout=timeout)
-            return cache_instance.get(key)
-
-        users_list = caching(
+        users_list = django_utils.DjangoClass.Caching.cache(
             key="users_list",
-            value=[{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
+            lambda_queryset=lambda:
+            [{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()],
             cache_instance=LocMemCache,
-            timeout=3
+            timeout=10
         )
-        users_list = [{"username": f"{user.username}", "email": f"{user.email}"} for user in User.objects.all()]
-        print("cache_f users_list: ", users_list)
 
         return "Вы не робот!"
 
@@ -75,19 +76,51 @@ def token_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
     if request.method == "POST":
         # TODO {"username": "admin", "password": "admin"}
         # TODO {"username": "user", "password": "12345Qwerty!"}
-        username = request.get(key="username", _type=str, default="", is_file=False)
-        password = request.get(key="password", _type=str, default="", is_file=False)
+        username_str = request.get(key="username", _type=str, default="", is_file=False)
+        password_str = request.get(key="password", _type=str, default="", is_file=False)
 
-        if username and password:
-            user_obj = authenticate(username=username, password=password)
+        if username_str and password_str:
+            user_obj = authenticate(username=username_str, password=password_str)
             if user_obj is None:
                 raise Exception("Username or password incorrect!")
             if user_obj.user_model.is_active_account is False:
                 raise Exception("Attention, your account is banned!")
-            update_last_login(sender=None, user=user_obj)
-            token_str = django_models.TokenModel.create_or_update_token(user=user_obj)
-            return {"token": token_str}
+            access_count = 0
+            for log in django_models.LoggingModel.objects.filter(
+                    username=User.objects.get(id=username_str),
+                    ip=request.ip,
+                    path=request.path,
+                    method=f"{request.method} | {request.action}",
+                    error="-"
+            ):
+                if (log.created + datetime.timedelta(hours=6, minutes=59)).strftime('%Y-%m-%d %H:%M') >= \
+                        (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M'):
+                    access_count += 1
+            if access_count < 20:
+                update_last_login(sender=None, user=user_obj)
+                token_str = django_models.TokenModel.create_or_update_token(user_obj=user_obj)
+                return {"token": token_str}
+            else:
+                raise Exception("Too many try for login!")
         raise Exception("Username or password not fulled!")
+
+
+@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=True)
+def detail_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> any:
+    if request.method == "GET":
+        user_obj = django_utils.DjangoClass.Caching.cache(
+            key=f"user_obj {request.user.username}",
+            lambda_queryset=lambda: django_serializers.UserSerializer(request.user, many=False).data,
+            cache_instance=LocMemCache,
+            timeout=10
+        )
+        user_model_obj = django_utils.DjangoClass.Caching.cache(
+            key=f"user_model_obj {request.user.username}",
+            lambda_queryset=lambda: django_serializers.UserModelSerializer(request.user_model, many=False).data,
+            cache_instance=LocMemCache,
+            timeout=10
+        )
+        return {"user": user_obj, "user_model": user_model_obj}
 
 
 @django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)

@@ -14,7 +14,8 @@ export const Sidebar1 = () => {
       className="d-flex flex-column flex-shrink-0 p-1 text-white bg-dark h-100"
       style={{ width: "220px" }}
     >
-      <Link to="/"
+      <Link
+        to="/"
         className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
       >
         <svg className="bi me-2" width="40" height="32" />
@@ -29,7 +30,11 @@ export const Sidebar1 = () => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link to="/instructions" className="nav-link text-white" aria-current="page">
+          <Link
+            to="/instructions"
+            className="nav-link text-white"
+            aria-current="page"
+          >
             <svg className="bi me-2" width="16" height="16" />
             Инструкции
           </Link>
@@ -121,3 +126,9 @@ export const Sidebar1 = () => {
     </div>
   );
 };
+
+export function Sidebar2() {
+  // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  return <div></div>;
+}
