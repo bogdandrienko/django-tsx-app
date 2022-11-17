@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# sudo apt-get install docker-compose -y && sudo apt autoremove -y
+# docker-compose run web sh -c "django-admin startproject django_settings app"
+# sudo docker-compose build
+sudo docker-compose up --build
+# sudo docker-compose up -d --build
+# sudo docker compose down

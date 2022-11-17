@@ -1,8 +1,15 @@
 // TODO download modules ///////////////////////////////////////////////////////////////////////////////////////////////
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Container, Navbar, Nav, NavDropdown } from "react-bootstrap";
+import {
+  Container,
+  Navbar,
+  Nav,
+  NavDropdown,
+  Button,
+  Offcanvas,
+} from "react-bootstrap";
 // @ts-ignore
 import { LinkContainer } from "react-router-bootstrap";
 
@@ -314,7 +321,8 @@ export const NavbarComponent4 = () => {
     <header className="p-3 bg-dark text-white">
       <div className="container">
         <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-          <Link to="/"
+          <Link
+            to="/"
             className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none"
           >
             <svg
@@ -329,27 +337,27 @@ export const NavbarComponent4 = () => {
           <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
             <li>
               <Link to="/" className="nav-link px-2 text-secondary">
-              Главная
+                Главная
               </Link>
             </li>
             <li>
               <Link to="/" className="nav-link px-2 text-white">
-              Инструкции
+                Инструкции
               </Link>
             </li>
             <li>
               <Link to="/vision" className="nav-link px-2 text-white">
-              CV+
+                CV+
               </Link>
             </li>
             <li>
               <Link to="/" className="nav-link px-2 text-white">
-              ТОиР
+                ТОиР
               </Link>
             </li>
             <li>
               <Link to="/" className="nav-link px-2 text-white">
-              АСД
+                АСД
               </Link>
             </li>
           </ul>
@@ -373,3 +381,256 @@ export const NavbarComponent4 = () => {
     </header>
   );
 };
+
+//@ts-ignore
+export function NavbarComponent5({ name, ...props }) {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const toggleShow = () => setShow((s) => !s);
+
+  return (
+    <div>
+      <Button
+        variant="outline-secondary"
+        onClick={toggleShow}
+        className="w-100 p-3"
+      >
+        {name}
+      </Button>
+      <Offcanvas
+        show={show}
+        onHide={handleClose}
+        {...props}
+        className={"custom_offcanvas_1"}
+      >
+        <Offcanvas.Header closeButton onClick={handleClose}>
+          <Offcanvas.Title>
+            <ul className="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-1 justify-content-center text-center shadow m-0 p-1">
+              <div className={"d-flex justify-content-between"}>
+                <span className={"text-dark lead"}>скрыть</span>
+                <i className="fa-solid fa-arrow-up-from-bracket ms-3 p-1"></i>
+              </div>
+            </ul>
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <ul className="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 justify-content-center text-start m-0 p-0">
+            <LinkContainer
+              to="/"
+              className="custom-active-dark custom-hover m-0 p-1"
+            >
+              <Nav.Link className="text-dark lead m-0 p-0">
+                <i className="fa-solid fa-earth-asia m-0 p-1"></i>
+                Домашняя страница
+              </Nav.Link>
+            </LinkContainer>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-address-card p-1"></i>
+                  Личный Профиль
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Вход в систему
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Выйти из системы
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-book-open p-1"></i>
+                  Инструкции по системе
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Видео-инструкции
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Текстовые инструкции
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-brain p-1"></i>
+                  Интеллектуальные системы <br />
+                  (CV+)
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Машинное зрение
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Нейронные сети
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">Биг дата</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Глубокое обучение
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-eye p-1"></i>
+                  Предиктивная аналитика <br />
+                  (ТОиР)
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Внесение данных
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">Графики</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">Отчётность</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Прогнозирование
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-vr-cardboard p-1"></i>
+                  Виртуальная и дополненная <br />
+                  реальность (VR/AR)
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Виртуальная реальность
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Дополненная реальность
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-tachograph-digital p-1"></i>
+                  Автоматизированная система <br />
+                  диспетчеризации (АСД)
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <LinkContainer
+                to="/asd_report"
+                className="custom-active-dark custom-hover m-0 p-1"
+              >
+                <Nav.Link className="text-dark m-0 p-0">
+                  <i className="fa-solid fa-circle-info m-0 p-1"></i>
+                  Мониторинг
+                </Nav.Link>
+              </LinkContainer>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Сложные алгоритмы
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <LinkContainer
+                to="/asd_report"
+                className="custom-active-dark custom-hover m-0 p-1"
+              >
+                <Nav.Link className="text-dark m-0 p-0">
+                  <i className="fa-solid fa-rectangle-list p-1"></i>
+                  Отчётность
+                </Nav.Link>
+              </LinkContainer>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">Графики</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Внесение данных
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-square-up-right p-1"></i>Внешние
+                  системы
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Позиционирование персонала
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Мониторинг выбросов
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">Биг дата</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Контроль усталости
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Датчики и контроллеры
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-user-tie p-1"></i>
+                  Служба управления <br />
+                  персоналом (HR)
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Расчётный лист
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">
+                Справка с места работы
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action4">Отпуск</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">Личное дело</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Библиотека и акты
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown
+              title={
+                <span className={"text-dark lead"}>
+                  <i className="fa-solid fa-laptop-code p-1"></i>1C
+                </span>
+              }
+              id="navbarScrollingDropdown"
+            >
+              <NavDropdown.Item href="#action3">
+                Интеграция с 1С
+              </NavDropdown.Item>
+            </NavDropdown>
+          </ul>
+        </Offcanvas.Body>
+      </Offcanvas>
+    </div>
+  );
+}
