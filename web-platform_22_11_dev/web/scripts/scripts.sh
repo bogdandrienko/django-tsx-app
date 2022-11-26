@@ -303,12 +303,12 @@ sudo su - postgres
 createuser django_user
 createdb django_database -O django_user
 psql django_database
-#CREATE USER django_usr WITH PASSWORD '31284bogdan';
+#CREATE USER django_user WITH PASSWORD '12345Qwerty!';
 #CREATE DATABASE django_database OWNER django_user;
-#ALTER ROLE django_usr SET client_encoding TO 'utf8';
-#ALTER ROLE django_usr SET default_transaction_isolation TO 'read committed';
-#ALTER ROLE django_usr SET timezone TO 'UTC';
-#GRANT ALL PRIVILEGES ON DATABASE django_db TO django_usr;
+#ALTER ROLE django_user SET client_encoding TO 'utf8';
+#ALTER ROLE django_user SET default_transaction_isolation TO 'read committed';
+#ALTER ROLE django_user SET timezone TO 'UTC';
+#GRANT ALL PRIVILEGES ON DATABASE django_database TO django_user;
 alter user django_user with password '12345Qwerty!';
 \q
 exit
