@@ -1,0 +1,26 @@
+{
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120"
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "pylint_django",
+        "--django-settings-module=core.settings",
+        "--max-line-length=120"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "python.linting.mypyEnabled": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "editor.mouseWheelZoom": true,
+    "editor.fontSize": 18,
+    "debug.console.fontSize": 18,
+    "terminal.integrated.fontSize": 18,
+    "markdown.preview.fontSize": 18
+}

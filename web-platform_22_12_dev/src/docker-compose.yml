@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: on-failure
+    networks:
+      - main
+    env_file:
+      - ./web/.env
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    container_name: web
+    restart: on-failure
+    depends_on:
+      - db
+    networks:
+      - main
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./web/.env
+    image: web
+    volumes:
+      - .:/web
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "python manage.py wait_for_db && python manage.py collectstatic --noinput && 
+             python manage.py makemigrations --noinput && python3 manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+             # gunicorn django_settings.wsgi -bind 0.0.0.0:8000
+volumes:
+  postgres_data:
+networks:
+   main:
+     driver: bridge
