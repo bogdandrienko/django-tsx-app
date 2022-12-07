@@ -1,8 +1,0 @@
-
-time: 2022-11-04 15:25:46.088672 user: None ip: 127.0.0.1 path: /api/report/ method: GET action: _ error: division by zero
-
-time: 2022-11-04 15:26:20.510695 user: None ip: 127.0.0.1 path: /api/report/ method: GET action: _ error: division by zero
-
-time: 2022-11-04 15:26:22.681788 user: None ip: 127.0.0.1 path: /api/report/ method: GET action: _ error: division by zero
-
-time: 16:18:25 user: None ip: 127.0.0.1 path: /api/token/ method: POST action: _ error: LoggingModel() got unexpected keyword arguments: 'error'
