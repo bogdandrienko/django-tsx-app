@@ -1026,10 +1026,19 @@ class DjangoClass:
         @staticmethod
         def cache(key: str, lambda_queryset: any, cache_instance: any, timeout: int) -> any:
             result = cache_instance.get(key)
-            if result is None:
-                result = lambda_queryset()
-                cache_instance.set(key, result, timeout=timeout)
-            return cache_instance.get(key)
+            if result:
+                return result
+            result = lambda_queryset()
+            cache_instance.set(key, result, timeout=timeout)
+            return result
+
+        def cache(key: str, lambda_queryset: any, cache_instance: any, timeout: int) -> any:
+
+            chached_result = cache_instance.get("get_all_vrach_ratings")
+            if chached_result is None:
+                chached_result = [{'id': 3, 'username': 'K', 'rating': -2}, {'id': 1, 'username': 'B', 'rating': 22}, {'id': 2, 'username': 'H', 'rating': 66}]  # вот это нужно кэшировать
+                cache_instance.set("get_all_vrach_ratings", chached_result, timeout=timeout)
+            return cache_instance.get("get_all_vrach_ratings")
 
         def example(self):
             LocMemCache = caches["default"]
@@ -1040,6 +1049,7 @@ class DjangoClass:
                 cache_instance=LocMemCache,
                 timeout=10
             )
+
     @staticmethod
     def check_access(author, slug=""):
         if django_models.GroupModel.objects.filter(

@@ -102,6 +102,7 @@ def detail_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | 
             cache_instance=LocMemCache,
             timeout=10,
         )
+
         user_model_obj = django_utils.DjangoClass.Caching.cache(
             key=f"user_model_obj {request.user.username}",
             lambda_queryset=lambda: django_serializers.UserModelSerializer(request.user_model, many=False).data,

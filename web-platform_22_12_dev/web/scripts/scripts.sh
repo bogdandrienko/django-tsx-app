@@ -282,16 +282,19 @@ sudo apt-get update -y
 sudo apt-get install -y python3-dev python3-pip python3-venv
 # todo install
 
-python3 -m pip3 install --upgrade pip
+# python3 -m pip3 install --upgrade pip
+cd ~
+mkdir web && cd web
 python3 -m venv env
 
 source env/bin/activate
-python3 -m pip3 install --upgrade pip
+# python3 -m pip3 install --upgrade pip
 
 pip install wheel
 pip install Django djangorestframework django-cors-headers django-environ django-grappelli djangorestframework-simplejwt gunicorn celery redis psycopg2-binary pyodbc lxml Pillow requests aiohttp beautifulsoup4 openpyxl
 pip install -r requirements.txt
 pip freeze > requirements.txt
+
 
 django-admin startproject django_settings .
 django-admin startapp django_app
@@ -319,6 +322,9 @@ source ~/.bashrc
 nvm ls-remote
 nvm install 18.10.0
 nvm use 18.10.0
+node --version
+
+npx create-react-app frontend --template redux-typescript
 # todo install
 
 npx -y create-react-app frontend --template redux-typescript
