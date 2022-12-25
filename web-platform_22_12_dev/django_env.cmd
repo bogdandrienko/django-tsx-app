@@ -1,7 +1,5 @@
 @echo OFF
 
-cd ..
-
 python.exe -m pip install --upgrade pip
 
 pip install env
