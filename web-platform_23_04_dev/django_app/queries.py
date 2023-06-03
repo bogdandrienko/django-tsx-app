@@ -29,9 +29,10 @@ SELECT MAX(TIME)                                                                
        ROUND(( MAX(FUEL2_VALUE) - MIN(FUEL2_VALUE) ) / (( MAX(TIME) - MIN(TIME) ) * 24), 3) difval 
 FROM   kgp.UMPMESINEXECUTE_GALILEO 
 WHERE  CONTROL_ID = 507 
-       AND FUEL2_VALUE NOT IN( 65535, 0 ) 
+       AND FUEL2_VALUE NOT IN( 65535, 0, 14807 ) 
        AND ( TIME BETWEEN SYSDATE - ( 1 / 24 / 60 * :timeDiff ) AND SYSDATE ) 
 ORDER  BY TIME DESC 
+
 
 """
 
@@ -58,6 +59,134 @@ FROM   vehtrips vt
 WHERE  vt.timeunload BETWEEN getpredefinedtimefrom('за указанную смену', getcurshiftnum(0, SYSDATE), getcurshiftdate(0, SYSDATE)) AND getpredefinedtimeto('за указанную смену', getcurshiftnum(0, SYSDATE), getcurshiftdate(0, SYSDATE))
 ORDER  BY vehid ASC, timeload ASC 
 
+"""
+
+
+def query_time_wait_to_load() -> str:
+    return """
+    
+SELECT d.VEHID                                       tech_key,
+       psc.POLY_STOP_CAT_NAME                        category,
+       s.TIMESTOP                                    TIMESTOP,
+       s.TIMEGO                                      TIMEGO,
+       ROUND(( s.TIMEGO - s.TIMESTOP ) * 24 * 60, 1) TIME_minutes
+FROM   dispatcher.SHIFTSTOPPAGES s
+       inner join dispatcher.DUMPTRUCKS d
+               ON d.VEHID = s.VEHID
+                  AND d.COLUMNNUM = 1
+                  AND ( :param_select_tech_id = 'Все'
+                         OR d.VEHID = :param_select_tech_id )
+       inner join dispatcher.POLY_USER_STOPPAGES_DUMP ps
+               ON ps.POLY_STOP_BINDINGS_ID = 86
+                  AND ( ps.CODE = s.IDLESTOPTYPE
+                        AND ps.POLY_STOP_CAT_ID IS NOT NULL )
+       inner join dispatcher.POLY_STOP_CATEGORIES psc
+               ON psc.POLY_STOP_CAT_ID = ps.POLY_STOP_CAT_ID
+WHERE  s.SHIFTDATE = :param_date
+       AND s.SHIFTNUM = :param_shift
+       AND ROUND(( s.TIMEGO - s.TIMESTOP ) * 24 * 60, 1) >= :param_target
+       AND NVL(s.IDLESTOPTYPE, 0) NOT IN( 0, 1, 67 )
+       AND psc.POLY_STOP_CAT_NAME = 'Ожидание погрузки/самосвала'
+ORDER  BY TIMESTOP,
+          TIMEGO     
+    
+"""
+
+
+def query_analyse_avg_speed() -> str:
+    return """
+    
+WITH b
+     AS (SELECT GETPREDEFINEDTIMEFROM('за указанную смену', :param_shift, :param_date) SDATEFROM,
+                GETPREDEFINEDTIMETO('за указанную смену', :param_shift, :param_date)   SDATETO,
+                :param_select_tech_id                                                                  TECHID
+         FROM   DUAL)
+SELECT q.VEHID,
+       q.SHOVID,
+       TRIM(d.FAMNAME)
+       || ' '
+       || TRIM(d.FIRSTNAME)
+       || ' '
+       || TRIM(d.SECNAME)                            fio,
+       KEM_DATETODDMMYYYY(q.TASKDATE)                TASKDATE,
+       q.SHIFT,
+       q.TRIP                                        trips,
+       q.WORKTYPE                                    worktype,
+       q.TIMELOAD,
+       q.TIMEUNLOAD,
+       ROUND(q.AVSPEED, 2)                           avgloadspeed,
+       ROUND(q.AVSPEED_EMPTY, 2)                     avgemptyspeed,
+       ROUND(( q.AVSPEED + q.AVSPEED_EMPTY ) / 2, 2) avspeed
+FROM   (SELECT s.VEHID,
+               s.VEHCODE,
+               s.SHOVID,
+               s.WORKTYPE,
+               s.TIMELOAD,
+               s.TIMEUNLOAD,
+               s.TIMELOAD_NEXT,
+               s.AVSPEED,
+               s.TASKDATE,
+               s.SHIFT,
+               TRIP,
+               SUM(st.MOVELENGTH / 1000) / SUM(( st.MOVELENGTH / 1000 ) / st.AVGSPEED) AVSPEED_EMPTY
+        FROM   (SELECT VEHID,
+                       VEHCODE,
+                       SHOVID,
+                       WORKTYPE,
+                       TIMELOAD,
+                       TIMEUNLOAD,
+                       NVL(LEAD(TIMELOAD)
+                             over (
+                               PARTITION BY VEHCODE
+                               ORDER BY TIMELOAD), B.SDATETO) TIMELOAD_NEXT,
+                       AVSPEED,
+                       GETCURSHIFTDATE(0, TIMELOAD)           taskdate,
+                       GETCURSHIFTNUM(0, TIMELOAD)            shift,
+                       1                                      trip
+                FROM   VEHTRIPS
+                       inner join b
+                               ON TIMELOAD BETWEEN B.SDATEFROM AND B.SDATETO
+                                  AND TIMEUNLOAD BETWEEN B.SDATEFROM AND B.SDATETO
+                WHERE  SHOVID NOT LIKE '%Неопр.%'
+                       AND ( TRIM(UPPER(WORKTYPE)) NOT LIKE ( '%ВКП СКАЛА%' )
+                             AND TRIM(UPPER(WORKTYPE)) NOT LIKE ( '%ВКП ЩЕБЕНЬ%' )
+                             AND TRIM(UPPER(WORKTYPE)) NOT LIKE ( '%ВКП%' )
+                             AND TRIM(UPPER(WORKTYPE)) NOT LIKE ( '%ПСП%' )
+                             AND TRIM(UPPER (UNLOADID)) NOT LIKE ( '%АВТОДОРОГА%' )
+                             AND TRIM(UPPER (UNLOADID)) NOT LIKE ( '%ВНЕ ОТВАЛА%' )
+                             AND TRIM(UPPER (UNLOADID)) NOT LIKE ( '%ДОРОГА ОБЩЕГО ПОЛЬЗОВАНИЯ%' )
+                             AND TRIM(UPPER (WORKTYPE)) NOT LIKE ( '%ВСП%' )
+                             AND TRIM(UPPER (WORKTYPE)) NOT LIKE ( '%СНЕГ%' ) )
+                       AND ( B.TECHID = 'Все'
+                              OR VEHID = B.TECHID )
+                ORDER  BY LENGTH(VEHID),
+                          VEHID,
+                          TIMELOAD) s
+               left join SIMPLETRANSITIONS st
+                      ON st.VEHCODE = s.VEHCODE
+                         AND st.AVGSPEED > 5
+                         AND ( st.TIMEGO BETWEEN s.TIMEUNLOAD AND s.TIMELOAD_NEXT )
+                         AND st.MOVELENGTH > 0
+        GROUP  BY s.VEHID,
+                  s.VEHCODE,
+                  s.WORKTYPE,
+                  s.SHOVID,
+                  s.TIMELOAD,
+                  s.TIMEUNLOAD,
+                  s.TIMELOAD_NEXT,
+                  s.AVSPEED,
+                  s.TASKDATE,
+                  s.SHIFT,
+                  s.TRIP)q
+       left join SHIFTTASKS stk
+              ON stk.TASKDATE = q.TASKDATE
+                 AND stk.SHIFT = q.SHIFT
+                 AND stk.VEHID = q.VEHID
+       left join DRIVERS d
+              ON stk.TABELNUM = d.TABELNUM
+ORDER  BY q.TASKDATE,
+          TIMELOAD 
+    
 """
 
 

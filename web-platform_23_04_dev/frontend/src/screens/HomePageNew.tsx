@@ -33,22 +33,44 @@ export default function Page(): JSX.Element {
         </Link>
         <Link
           to={"/shovels"}
-          className={"btn btn-lg btn-outline-success fw-bold lead display-6"}
+          className={
+            "btn btn-lg btn-outline-warning fw-bold lead display-6 disabled"
+          }
         >
           Анализ экскаваторов
         </Link>
         <Link
           to={"/predictive"}
-          className={"btn btn-lg btn-outline-warning fw-bold lead display-6"}
+          className={"btn btn-lg btn-outline-success fw-bold lead display-6"}
         >
           Предиктивная аналитика
         </Link>
         <Link
           to={"/reports/operuchet"}
-          className={"btn btn-lg btn-outline-danger fw-bold lead display-6"}
+          className={
+            "btn btn-lg btn-outline-danger fw-bold lead display-6 disabled"
+          }
         >
           Оперучёт
         </Link>
+      </div>
+      <hr />
+      <div className={"container shadow p-3"}>
+        <div className={"display-6 fw-bold"}>ПТО</div>
+        <div className={"input-group lead my-5"}>
+          <Link
+            to={"/reports/avg_speed"}
+            className={"btn btn-lg btn-outline-success fw-bold lead display-6"}
+          >
+            Анализ средней скорости
+          </Link>
+          <Link
+            to={"/reports/time_to_load"}
+            className={"btn btn-lg btn-warning fw-bold lead display-6"}
+          >
+            Анализ времени на погрузку
+          </Link>
+        </div>
       </div>
     </base.Base1>
   );

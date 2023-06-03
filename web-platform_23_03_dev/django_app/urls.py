@@ -1,11 +1,12 @@
-from django.urls import path, re_path
+from django.urls import re_path, path
 from django_app import views
 
-app_name = "django_app"
-urlpatterns = [
-    path("", views.predictive_f, name=""),
 
-    path("vehtrips/status/", views.vehtrips_status_f),
+urlpatterns = [
+    path("dumptrucks/eventstate/", views.vehtrips_status_f),
+    re_path(r"^drainage/eventstate/$", views.drainage_status_f),
+    re_path(r"^reports/operuchet/$", views.reports_operuchet_f),
+    re_path(r"^analyse/predictive/$", views.analyse_predictive_f),
     # path("index/", views.index_f, name="index"),
     # path("home/", views.index_f, name="home"),
     # re_path(r"^user/captcha/$", views.captcha_f, name="captcha"),
@@ -15,4 +16,8 @@ urlpatterns = [
     # re_path(r"^report/$", views.report_f, name="report"),
     # re_path(r"^todo/(?P<pk>\d+)/$", views.todo_f, name="todo_pk"),
     # re_path(r"^todo/$", views.todo_f, name="todo"),
+
+    # re_path(r"^images/$", views.images),
+    # re_path(r"^images/(?P<pk>\d+)/$", views.index),  # todo detail of image model
+    # re_path(r"^images/upload/$", views.index),  # todo upload of new image model
 ]

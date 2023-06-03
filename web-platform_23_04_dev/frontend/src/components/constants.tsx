@@ -2,8 +2,9 @@
 
 // export const DEBUG_CONSTANT = process.env.NODE_ENV === "production";
 export const DEBUG_CONSTANT = true;
-export const SERVER_HOST_AND_PORT_CONSTANT = "http://127.0.0.1:8000"; // todo DEV
-// export const SERVER_HOST_AND_PORT_CONSTANT = "http://172.30.23.16:8002"; // todo PROD
+
+// export const SERVER_HOST_AND_PORT_CONSTANT = "http://127.0.0.1:8003"; // todo DEV
+export const SERVER_HOST_AND_PORT_CONSTANT = "http://172.30.23.16:8002"; // todo PROD
 
 export class HttpMethods {
   static GET() {

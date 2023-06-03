@@ -1,12 +1,30 @@
-from django.urls import re_path, path
+from django.urls import re_path
 from django_app import views
 
 
 urlpatterns = [
-    path("dumptrucks/eventstate/", views.vehtrips_status_f),
-    re_path(r"^drainage/eventstate/$", views.drainage_status_f),
-    re_path(r"^reports/operuchet/$", views.reports_operuchet_f),
-    re_path(r"^analyse/predictive/$", views.analyse_predictive_f),
+    # events
+    re_path(r"^events/drainage/$", views.f_events_drainage),
+    re_path(r"^events/dumptrucks/$", views.f_events_dumptrucks),
+    re_path(r"^events/shovels/$", views.f_events_dumptrucks),
+    re_path(r"^events/auxes/$", views.f_events_dumptrucks),
+
+    re_path(r"^rational/$", views.f_rational),
+
+    # analyse
+    re_path(r"^analyse/vehtrips/$", views.f_analyse_predictive),
+
+    # reports
+    re_path(r"^reports/operuchet/dumptrucks/$", views.f_reports_operuchet_dumptrucks),
+    re_path(r"^reports/avg_speed/$", views.f_reports_avg_speed),
+    re_path(r"^reports/time_wait_to_load/$", views.f_reports_time_wait_to_load),
+
+    # todo #############################################################################################################
+    re_path(r"^users/captcha/$", views.f_users_captcha),
+
+    # re_path(r"^users/(?P<pk>\d+)/detail/$", views.todo_f, name="todo_pk"),
+    # re_path(r"^users/list/$", views.todo_f, name="todo"),
+
     # path("index/", views.index_f, name="index"),
     # path("home/", views.index_f, name="home"),
     # re_path(r"^user/captcha/$", views.captcha_f, name="captcha"),

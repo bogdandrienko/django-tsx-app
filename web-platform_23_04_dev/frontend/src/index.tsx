@@ -19,10 +19,12 @@ import TaskChangePage from "./pages/TaskChangePage";
 import HomePageNew from "./screens/HomePageNew";
 import DumptrucksScan from "./screens/DumptrucksScan";
 // @ts-ignore
-import Drainage from "./screens/Drainage";
+import Drainage from "./screens/EventsDrainage";
 import ShovelsScan from "./screens/ShovelsScan";
-import TripsPredictive from "./screens/TripsPredictive";
+import AnalyseTrips from "./screens/AnalyseTrips";
 import ReportOperuchet from "./screens/ReportOperuchet";
+import ReportAvgSpeed from "./screens/ReportAvgSpeed";
+import ReportTimeToLoad from "./screens/ReportTimeToLoad";
 
 import "./css/bootstrap/bootstrap.min.css";
 import "./css/font_awesome/css/all.min.css";
@@ -45,9 +47,14 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/" element={<HomePageNew />}></Route>
         <Route path="/dumptrucks" element={<DumptrucksScan />}></Route>
         <Route path="/shovels" element={<ShovelsScan />}></Route>
-        <Route path="/predictive" element={<TripsPredictive />}></Route>
+        <Route path="/predictive" element={<AnalyseTrips />}></Route>
         <Route path="/drainage" element={<Drainage />}></Route>
         <Route path="/reports/operuchet" element={<ReportOperuchet />}></Route>
+        <Route path="/reports/avg_speed" element={<ReportAvgSpeed />}></Route>
+        <Route
+          path="/reports/time_to_load"
+          element={<ReportTimeToLoad />}
+        ></Route>
         {/*<Route path="/" element={<HomePage />}></Route>*/}
         {/*<Route path="/login" element={<LoginPage />}></Route>*/}
         {/*<Route path="/logout" element={<LogoutPage />}></Route>*/}

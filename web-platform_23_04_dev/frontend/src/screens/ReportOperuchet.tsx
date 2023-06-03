@@ -60,7 +60,7 @@ export default function Page(): JSX.Element {
     try {
       const config = {
         url:
-          `api/reports/operuchet/?dateFrom=${getterFormObj.dateFrom}&shiftFrom=${getterFormObj.shiftFrom}` +
+          `api/reports/operuchet/dumptrucks/?dateFrom=${getterFormObj.dateFrom}&shiftFrom=${getterFormObj.shiftFrom}` +
           `&dateTo=${getterFormObj.dateTo}&shiftTo=${getterFormObj.shiftTo}` +
           `&selectTechId=${getterFormObj.selectTechId}&roundPoint=${getterFormObj.roundPoint}`,
         method: `GET`,

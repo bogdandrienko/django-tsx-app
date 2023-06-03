@@ -1,16 +1,27 @@
-// TODO download modules ///////////////////////////////////////////////////////////////////////////////////////////////
-
 import React from "react";
 import { Navbar, NavDropdown } from "react-bootstrap";
-
-// TODO export /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const Footer1 = () => {
   // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return (
+    <footer
+      className="footer mt-auto py-3 bg-light w-100 custom-background-transparent-middle-hard"
+      style={{ position: "absolute", left: "auto", bottom: 0, right: 0 }}
+    >
+      <div className="container">
+        <span className="text-muted">Place sticky footer content here.</span>
+      </div>
+    </footer>
+  );
+};
+
+export const Footer2 = () => {
+  // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  return (
     <footer className="m-0 p-0 pt-3 custom_footer_2">
-      <div className="bg-dark bg-opacity-10 shadow-lg m-0 p-0">
+      <div className="bg-dark custom-background-transparent-hard shadow-lg m-0 p-0">
         <ul className="row row-cols-auto row-cols-md-auto row-cols-lg-auto nav justify-content-center m-0 p-0">
           <li className="m-0 p-1">
             <a className="btn btn-sm btn-outline-secondary text-white" href="#">
@@ -24,7 +35,7 @@ export const Footer1 = () => {
               <NavDropdown
                 title={
                   <span className="btn-outline-primary text-white">
-                    Наши Ссылки
+                    My links
                     <i className="fa-solid fa-circle-info m-0 p-1" />
                   </span>
                 }
@@ -32,17 +43,14 @@ export const Footer1 = () => {
                 className="btn btn-sm btn-outline-primary m-0 p-0"
               >
                 <li>
-                  <strong className="dropdown-header">Сайты</strong>
-                  <NavDropdown.Item
-                    className="dropdown-item"
-                    href="https://in.polymetal.ru/"
-                  >
-                    Корпоративный портал
+                  <strong className="dropdown-header">Sites</strong>
+                  <NavDropdown.Item className="dropdown-item" href="#">
+                    ...
                   </NavDropdown.Item>
                   <NavDropdown.Divider />
                 </li>
                 <li>
-                  <strong className="dropdown-header">Соцсети</strong>
+                  <strong className="dropdown-header">Social</strong>
                   <NavDropdown.Item className="dropdown-item" href="#">
                     ...
                   </NavDropdown.Item>
@@ -88,7 +96,7 @@ export const Footer1 = () => {
                     Рабочий номер, стационарный
                   </strong>
                   <NavDropdown.Item className="dropdown-item disabled" href="#">
-                    176
+                    ...
                   </NavDropdown.Item>
                   <NavDropdown.Divider />
                 </li>
@@ -104,44 +112,13 @@ export const Footer1 = () => {
                 <li>
                   <strong className="dropdown-header">Почта, локальная</strong>
                   <NavDropdown.Item className="dropdown-item disabled" href="#">
-                    AndrienkoBN@polymetal.kz
+                    ...
                   </NavDropdown.Item>
                 </li>
               </NavDropdown>
             </Navbar>
           </li>
         </ul>
-      </div>
-    </footer>
-  );
-};
-
-export const FooterComponent2 = () => {
-  // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  return (
-    <div className="custom_footer_1">
-      <h6 className="custom_footer_1_brand">
-        React SPA with Django DRF backend
-      </h6>
-      <div className="custom_footer_1_brands">
-        <strong className="custom_footer_2_brand">custom create </strong>
-        <strong className="custom_footer_2_brand">just for fun</strong>
-      </div>
-    </div>
-  );
-};
-
-export const FooterComponent3 = () => {
-  // TODO return ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  return (
-    <footer
-      className="footer mt-auto py-3 bg-light"
-      style={{ position: "absolute", left: "auto", bottom: 0, right: 0 }}
-    >
-      <div className="container">
-        <span className="text-muted">Place sticky footer content here.</span>
       </div>
     </footer>
   );

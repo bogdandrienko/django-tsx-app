@@ -88,6 +88,48 @@ export const user = {
   ),
 };
 
+export const events = {
+  drainageReadListStore: utils.ConstructorSlice1(
+    "drainageReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `/api/events/drainage/`,
+            constants.HttpMethods.GET(),
+            10000,
+            utils.ConstantConstructor1("drainageReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+};
+
+export const analyse = {
+  tripsReadListStore: utils.ConstructorSlice1(
+    "tripsReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `/api/analyse/vehtrips/`,
+            constants.HttpMethods.GET(),
+            10000,
+            utils.ConstantConstructor1("tripsReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+};
+
 export const tasks = {
   taskReadStore: utils.ConstructorSlice1(
     "taskReadStore",

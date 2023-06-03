@@ -1,293 +1,209 @@
-import collections
 import datetime
-import random
-import re
-import time
-from typing import Union
 
-import cx_Oracle
-import openpyxl
-from django.conf import settings
-from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import Group, User, update_last_login
-from django.core.cache import caches
-from django.db import connection, transaction
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.views import View
-from django.views.decorators.cache import cache_page
-from django_app import models as django_models
-from django_app import serializers as django_serializers
-from django_app import signals as django_signals
-from django_app import utils as django_utils
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-django_signals.register_all_signals()
-http_method_names = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+# from django_app import models as django_models, serializers as django_serializers
+# from django_app import signals as django_signals
+from django_app import utils as django_utils, queries as django_queries
 
-LocMemCache = caches["default"]
-DatabaseCache = caches["special"]
+"""
+
+Любой запрос с frontend нужно: Логировать, Кэшировать, Обрабатывать на ошибку, Авторизовать
+
+"""
 
 
-# RedisCache = caches["extra"]
-
-
-# Create your views here.
-
-def predictive_f(request):
+def index(request: HttpRequest) -> HttpResponse:
     try:
         context = {}
-        return render(request, "build/index.html", context=context)
+        return render(request=request, template_name="index.html", context=context)
     except Exception as error:
-        if settings.DEBUG:
-            print(f"error {error}")
-        return django_utils.DjangoClass.DRFClass.RequestOldClass.return_global_error(request=request, error=error)
+        context = {}
+        return render(request=request, template_name="django_app/404.html", context={})
 
 
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
-def vehtrips_status_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
+@api_view(http_method_names=["GET"])
+def vehtrips_status_f(request: WSGIRequest) -> Response:
     if request.method == "GET":
         try:
-            cx_Oracle.init_oracle_client(lib_dir=r"static_external/instantclient_21_9_lite")
+            rows_raw = django_utils.request_to_oracle(query=django_queries.query_vehtrips_status(), args={}, many=True)
+            rows_instances = [
+                {"vehid": i[0], "time": i[1], "x": i[2], "y": i[3], "weight": i[4], "fuel": i[5], "speed": i[6]}
+                for i in rows_raw
+            ]
+            return Response(data={"response": {"data": rows_instances}}, status=status.HTTP_200_OK)
         except Exception as error:
-            pass
-
-        with cx_Oracle.connect('DISPATCHER/disp@172.30.23.16/PITENEW') as __connection:
-            with __connection.cursor() as __cursor:
-                query = """
-SELECT VEHID, 
-       TIME, 
-       X, 
-       Y, 
-       WEIGHT, 
-       FUEL, 
-       SPEED 
-FROM   EVENTSTATEARCHIVE 
-WHERE  MESCOUNTER IN (SELECT MAX(MESCOUNTER) 
-                      FROM   EVENTSTATEARCHIVE 
-                      WHERE  TIME BETWEEN ( SYSDATE - ( 1 / 24 / 60 * 500 ) ) AND SYSDATE 
-                      GROUP  BY VEHID) 
-ORDER  BY VEHID 
-"""
-                __cursor.execute(query)
-                rows_raw = __cursor.fetchall()
-                rows_instances = [
-                    {"vehid": i[0], "time": i[1], "x": i[2], "y": i[3], "weight": i[4], "fuel": i[5], "speed": i[6]}
-                    for i in rows_raw]
-
-        # time.sleep(random.randint(1, 3))
-        return {"data": rows_instances}
+            return Response(data={"error": str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# @cache_page(timeout=1)
-def index_f(request):
-    try:
-        context = {}
-        return render(request, "build/index.html", context=context)
-    except Exception as error:
-        if settings.DEBUG:
-            print(f"error {error}")
-        return django_utils.DjangoClass.DRFClass.RequestOldClass.return_global_error(request=request, error=error)
-
-
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
-def captcha_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
+@api_view(http_method_names=["GET"])
+def drainage_status_f(request: WSGIRequest) -> Response:
     if request.method == "GET":
-        time.sleep(random.randint(1, 3))
-        return "Вы не робот!"
+        try:
+            timeDiff = request.GET["timeDiff"]
+            row_raw = django_utils.request_to_oracle(
+                query=django_queries.query_drainage_status(), args={"timeDiff": timeDiff}, many=False)
+            row_instances = {"maxtime": row_raw[0], "mintime": row_raw[1], "maxfuel": row_raw[2],
+                             "minfuel": row_raw[3], "diffuel": int(row_raw[4]), "difval": int(row_raw[5])}
+            return Response(data={"response": {"data": row_instances}}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print("error: ", error)
+            return Response(data={"error": str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
-def token_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
-    if request.method == "POST":
-        # TODO {"username": "admin", "password": "admin"}
-        # TODO {"username": "user", "password": "12345Qwerty!"}
-        username_str = request.get(key="username", _type=str, default="", is_file=False)
-        password_str = request.get(key="password", _type=str, default="", is_file=False)
-
-        if username_str and password_str:
-            user_obj = authenticate(username=username_str, password=password_str)
-            if user_obj is None:
-                raise Exception("Username or password incorrect!")
-            if user_obj.user_model.is_active_account is False:
-                raise Exception("Attention, your account is banned!")
-            access_count = 0
-            for log in django_models.LoggingModel.objects.filter(
-                    username=User.objects.get(id=username_str),
-                    ip=request.ip,
-                    path=request.path,
-                    method=f"{request.method} | {request.action}",
-                    error="-",
-            ):
-                if (log.created + datetime.timedelta(hours=6, minutes=59)).strftime("%Y-%m-%d %H:%M") >= (
-                        datetime.datetime.now()
-                ).strftime("%Y-%m-%d %H:%M"):
-                    access_count += 1
-            if access_count < 20:
-                update_last_login(sender=None, user=user_obj)
-                token_str = django_models.TokenModel.create_or_update_token(user_obj=user_obj)
-                return {"token": token_str}
-            else:
-                raise Exception("Too many try for login!")
-        raise Exception("Username or password not fulled!")
-
-
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=True)
-def detail_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
+@api_view(http_method_names=["GET"])
+def analyse_predictive_f(request: WSGIRequest) -> Response:
     if request.method == "GET":
-        user_obj = django_utils.DjangoClass.Caching.cache(
-            key=f"user_obj {request.user.username}",
-            lambda_queryset=lambda: django_serializers.UserSerializer(request.user, many=False).data,
-            cache_instance=LocMemCache,
-            timeout=10,
-        )
+        try:
+            row_raw = django_utils.request_to_oracle(
+                query=django_queries.query_analyse_predictive(), args={}, many=True)
+            trips = {"maxtime": row_raw[0], "mintime": row_raw[1], "maxfuel": row_raw[2],
+                     "minfuel": row_raw[3], "diffuel": int(row_raw[4]), "difval": int(row_raw[5])}
 
-        user_model_obj = django_utils.DjangoClass.Caching.cache(
-            key=f"user_model_obj {request.user.username}",
-            lambda_queryset=lambda: django_serializers.UserModelSerializer(request.user_model, many=False).data,
-            cache_instance=LocMemCache,
-            timeout=10,
-        )
-        return {"user": user_obj, "user_model": user_model_obj}
-
-
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
-def todo_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
-    if request.pk:
-        if request.method == "GET":
-            if request.action == "_":
-                todo_obj = django_models.Todo.objects.get(id=request.pk)
-                return django_serializers.TodoSerializer(todo_obj, many=False).data
-        elif request.method == "PUT" or request.method == "PATCH":
-            if request.action == "_":
-                title = request.get(key="title", _type=str, default=None, is_file=False)
-                description = request.get(key="description", _type=str, default=None, is_file=False)
-                avatar = request.get(key="avatar", _type=any, default=None, is_file=True)
-                is_completed = request.get(key="is_completed", _type=bool, default=None, is_file=True)
-
-                todo_obj = django_models.Todo.objects.get(id=request.pk)
-                if title is not None and todo_obj.title != title:
-                    todo_obj.title = title
-                if description is not None and todo_obj.description != description:
-                    todo_obj.description = description
-                if avatar is not None and todo_obj.avatar != avatar:
-                    todo_obj.avatar = avatar
-                if is_completed is not None and todo_obj.is_completed != is_completed:
-                    todo_obj.is_completed = is_completed
-                todo_obj.save()
-                return "Successfully update"
-        elif request.method == "DELETE":
-            if request.action == "":
-                django_models.Todo.objects.get(id=request.pk).delete()
-                return "Successfully delete"
-    else:
-        if request.method == "GET":
-            if request.action == "_":
-                page = request.get(key="page", _type=int, default=None, is_file=False)
-                limit = request.get(key="limit", _type=int, default=None, is_file=False)
-
-                todos_obj = django_models.Todo.objects.all()
-                if page and limit:
-                    todos_obj = django_utils.DjangoClass.PaginationClass.paginate(
-                        page_number=page, object_list=todos_obj, limit_per_page=limit
-                    )
-                return django_serializers.TodoSerializer(todos_obj, many=True).data
-        elif request.method == "POST":
-            if request.action == "_":
-                title = request.get(key="title", _type=str, default=None, is_file=False)
-                description = request.get(key="description", _type=str, default=None, is_file=False)
-                avatar = request.get(key="avatar", _type=any, default=None, is_file=True)
-                is_completed = request.get(key="is_completed", _type=bool, default=False, is_file=False)
-
-                if title:
-                    django_models.Todo.objects.create(
-                        title=title, description=description, avatar=avatar, is_completed=is_completed
-                    )
-                    return "Successfully create"
+            def kpd_match(fromTime, toTime):
+                elapsed_time1 = (toTime - fromTime).total_seconds()
+                if elapsed_time1 > 20 * 60:
+                    return 80
+                elif elapsed_time1 > 15 * 60:
+                    return 90
+                elif elapsed_time1 > 10 * 60:
+                    return 100
+                elif elapsed_time1 > 5 * 60:
+                    return 110
                 else:
-                    raise Exception({"detail": "Not have data"})
+                    return 120
 
+            trips_raw = [
+                {"vehid": i[1], "shovid": i[2], "unloadid": i[3], "worktype": i[4], "timeload": i[5],
+                 "timeunload": i[6], "movetime": i[7], "weigth": i[8], "bucketcount": i[9], "avspeed": i[10],
+                 "length": i[11], "unloadlength": i[12], "loadheight": i[13], "unloadheight": i[13],
+                 "kpd": kpd_match(i[5], i[6])}
+                for i in trips]
+            # print(trips_raw)
+            trips_raw = sorted(trips_raw, key=lambda x: x["timeload"], reverse=True)
 
-@django_utils.DjangoClass.DRFClass.RequestClass.request(auth=False)
-def report_f(request: django_utils.DjangoClass.DRFClass.RequestClass) -> dict | str | None:
-    if request.pk:
-        pass
-    else:
-        if request.method == "GET":
-            if request.action == "monitoring":
-                data = [
-                    {
-                        "id": x,
-                        "type": "Автосамосвал",
-                        "speed": random.randint(0, 20),
-                        "mass": random.randint(87, 102),
-                        "status": random.choice(["Норма", "Простой", "Движение", "Погрузка", "Ремонт", "ППР"]),
-                        "time": django_utils.DateTimeUtils.get_current_time(),
-                    }
-                    for x in range(201, 230)
-                ]
-                return {"data": data}
-            elif request.action == "report":
+            # todo сгруппировать по каждому самосвалу
+            data1 = {}
+            for trips in trips:
+                tech_id = f"{trips[1]}"
                 try:
-                    # ?page=1&limit=10&sort_by=name%20(asc)&filter_by=pay%20(true)&search=95
-                    page = request.GET.get("page", 1)
-                    limit = request.GET.get("limit", 10)
-                    search = request.GET.get("search", "")
-                    filter_by = request.GET.get("filter_by", "")
-                    sort_by = request.GET.get("sort_by", "")
-
-                    workbook = openpyxl.load_workbook("static/media/vehtrips.xlsx")
-                    worksheet = workbook.active
-                    matrix = worksheet.iter_rows(
-                        min_col=1, min_row=1, max_col=worksheet.max_column, max_row=300, values_only=True
-                    )
-                    # matrix = []
-                    # for i in range(1, worksheet.max_row+1):
-                    #     row_data = []
-                    #     for j in range(1, worksheet.max_column+1):
-                    #         print(i, j)
-                    #         row_data.append(worksheet.cell(i, j).value)
-                    #     matrix.append(row_data)
-                    matrix = [
-                        {
-                            "Автосамосвал": x[0],
-                            "Экскаватор": x[1],
-                            "Зона разгрузки": x[2],
-                            "Тип породы": x[3],
-                            "Зона погрузки": x[4],
-                            "Ном.": x[5],
-                            "Расстояние": x[6],
-                            "Масса": x[7],
-                            "Объём": x[8],
-                            "Частота по массе": x[9],
-                            "Частота по объёму": x[10],
-                            "Сред. скорость": x[11],
-                            "Часы": x[12],
-                            "Высота погрузки": x[13],
-                            "Высота разгрузки": x[14],
-                            "Время погрузки": x[15],
-                            "Время выезда на дорогу": x[16],
-                            "Время разгрузки": x[17],
-                            "Время рейса": x[18],
-                        }
-                        for x in list(matrix)
-                    ]
-                    matrix = [
-                        x
-                        for x in matrix
-                        if isinstance(x["Время разгрузки"], datetime.datetime)
-                           and (filter_by == "все" or filter_by == x["Тип породы"])
-                           and len(x["Зона разгрузки"]) > 0
-                    ]
-                    if sort_by == "времени погрузки (свежие в начале)":
-                        matrix.sort(key=lambda x: x["Время погрузки"], reverse=True)
-                    else:
-                        matrix.sort(key=lambda x: x["Время погрузки"])
-                    return {"data": matrix}
+                    data1[tech_id] = [*data1[tech_id], trips]
                 except Exception as error:
-                    print(error)
-                    return {"data": []}
+                    data1[tech_id] = [trips]
+
+            # todo сгруппировать по трём категориям
+            data2 = {}
+            for tech_id, trips in data1.items():
+                data2[tech_id] = {}
+                data2[tech_id]["last_trip"] = [trips[-1]]
+                for trip in trips:
+                    # todo CORE
+                    if (datetime.datetime.now() - trip[5]).total_seconds() < 1 * 60 * 60:
+                        try:
+                            data2[tech_id]["last_hour"] = [*data2[tech_id]["last_hour"], trip]
+                        except Exception as error:
+                            data2[tech_id]["last_hour"] = [trip]
+                    try:
+                        data2[tech_id]["last_shift"] = [*data2[tech_id]["last_shift"], trip]
+                    except Exception as error:
+                        data2[tech_id]["last_shift"] = [trip]
+
+            # todo оценить каждый рейс и записать в новые поля
+            data3 = {}
+            for tech_id, trips in data2.items():
+                data3[tech_id] = {}
+                data3[tech_id]["ratings"] = {}
+                for type_par in ["last_trip", "last_hour", "last_shift"]:
+                    try:
+                        count = len(data2[tech_id][type_par])
+                        if count > 0:
+                            res = 0
+                            elapsed_time = 0
+                            for trip in data2[tech_id][type_par]:
+                                elapsed_time = (trip[6] - trip[5]).total_seconds()
+                                if elapsed_time > 20 * 60:
+                                    res += 80
+                                elif elapsed_time > 15 * 60:
+                                    res += 90
+                                elif elapsed_time > 10 * 60:
+                                    res += 100
+                                elif elapsed_time > 5 * 60:
+                                    res += 110
+                                else:
+                                    res += 120
+                            if type_par == "last_trip":
+                                data3[tech_id]["ratings"][type_par] = {"rating": int(res / count),
+                                                                       "count": int(elapsed_time / 60)}
+                            else:
+                                data3[tech_id]["ratings"][type_par] = {"rating": int(res / count),
+                                                                       "count": count}
+                        else:
+                            data3[tech_id]["ratings"][type_par] = {"rating": 0, "count": 0}
+                    except Exception as error:
+                        data3[tech_id]["ratings"][type_par] = {"rating": 0, "count": 0}
+
+            # todo конвертация словаря в массив
+            data4 = []
+            for key, value in data3.items():
+                data4.append({"tech_id": key, **value})
+            return Response(data={"response": {"data": data4, "trips": trips_raw}}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response(data={"error": str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(http_method_names=["GET"])
+def reports_operuchet_f(request: WSGIRequest) -> Response:
+    if request.method == "GET":
+        try:
+            paramDateFrom = datetime.datetime.strptime(request.GET["dateFrom"], "%Y-%m-%d")
+            paramShiftFrom = request.GET["shiftFrom"]
+            paramDateTo = datetime.datetime.strptime(request.GET["dateTo"], "%Y-%m-%d")
+            paramShiftTo = request.GET["shiftTo"]
+            paramSelectTechId = request.GET["selectTechId"]
+            roundPoint = int(request.GET["roundPoint"])
+            data = dict(paramDateFrom=paramDateFrom, paramShiftFrom=paramShiftFrom, paramDateTo=paramDateTo,
+                        paramShiftTo=paramShiftTo, paramSelectTechId=paramSelectTechId)
+
+            rows_raw = django_utils.request_to_oracle(
+                query=django_queries.query_reports_operuchet(), args=data, many=True)
+            row_instances = []
+            for i in rows_raw:
+                tr_mass = round(i[4] / 2.1, roundPoint)
+                tr_gruz = i[5] * tr_mass
+                sk_mass = round(i[6] / 2.8, roundPoint)
+                sk_gruz = i[7] * sk_mass
+                rih_mass = round(i[8] / 1.8, roundPoint)
+                rih_gruz = i[9] * rih_mass
+                prs_mass = round(i[10] / 1.4, roundPoint)
+                prs_gruz = i[11] * prs_mass
+                rud_mass = round(i[12] / 2.8, roundPoint)
+                rud_gruz = i[13] * rud_mass
+                summ_mass = round(tr_mass + sk_mass + rih_mass + prs_mass + rud_mass, roundPoint)
+                summ_proiz_gruz = round(tr_gruz + sk_gruz + rih_gruz + prs_gruz + rud_gruz, roundPoint)
+                if summ_mass > 0:
+                    km = round(summ_proiz_gruz / summ_mass, roundPoint)
+                else:
+                    km = 0
+                temp_row_instances = [
+                    [i[3], "тр,км", "тр", round(i[4], roundPoint), round(i[5], roundPoint), 2.1, tr_mass,
+                     summ_proiz_gruz, summ_mass, km],
+                    [i[1], "ск,км", "ск", round(i[6], roundPoint), round(i[7], roundPoint), 2.8, sk_mass, "",
+                     "", ""],
+                    ["", "рых,км", "рых", round(i[8], roundPoint), round(i[9], roundPoint), 1.8, rih_mass, "",
+                     "", ""],
+                    ["", "ПРС,км", "прс", round(i[10], roundPoint), round(i[11], roundPoint), 1.4, prs_mass, "",
+                     "", ""],
+                    ["", "руда,км", "руд", round(i[12], roundPoint), round(i[13], roundPoint), 2.8, rud_mass,
+                     "", "", ""],
+                ]
+                row_instances.extend(temp_row_instances)
+            return Response(data={"response": {"data": row_instances}}, status=status.HTTP_200_OK)
+        except Exception as error:
+            print(error)
+            return Response(data={"error": str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -25,7 +25,7 @@ export default function Page(): JSX.Element {
       "pbkdf2_sha256$390000$aWV2vUbGxC6OYns3ZQw5q5$WqX/DUYyjIjA7X42p/paeS9gYlGd3dQsGk+ZUaxdB6Y=";
     const formData = new FormData();
     const config = {
-      url: `api/dumptrucks/eventstate/`,
+      url: `api/events/dumptrucks/`,
       method: `GET`,
       timeout: 5000,
       headers: {
@@ -58,7 +58,7 @@ export default function Page(): JSX.Element {
       <div className={"lead tex-danger fw-bold display-6"}>
         {currentTime && currentTime.length > 0 && currentTime.split(" G")[0]}
       </div>
-      <div className="row row-cols-3 row-cols-sm-1 row-cols-md-4 row-cols-lg-5 text-center m-0 p-0">
+      <div className="row row-cols-4 row-cols-sm-1 row-cols-md-5 row-cols-lg-6 text-center m-0 p-0">
         {monitoring && monitoring.data && monitoring.data.length > 0
           ? monitoring.data.map(
               // @ts-ignore

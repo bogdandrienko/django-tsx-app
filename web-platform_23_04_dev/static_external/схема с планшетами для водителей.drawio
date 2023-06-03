@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" modified="2023-04-12T08:31:32.289Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36" etag="C5CWi10wbSw2IZYPKtZk" version="21.1.6" type="device">
+  <diagram name="Page-1" id="BHpkYfhC3XuaFu2pozzu">
+    <mxGraphModel dx="2234" dy="1196" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-1" target="L9kXoktw_YvE_dQWzTwF-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-1" value="Водитель" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="181" y="27" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.145;entryY=0;entryDx=0;entryDy=4.35;entryPerimeter=0;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-2" target="L9kXoktw_YvE_dQWzTwF-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-2" value="экскаватор" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="49" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.818;entryY=0.046;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-3" target="L9kXoktw_YvE_dQWzTwF-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-3" value="самосвал" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="239" y="100" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-4" target="L9kXoktw_YvE_dQWzTwF-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-4" value="база данных АСД" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="136" y="217" width="120" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-7" value="планшет" style="shape=card;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="-91" y="44" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-9" target="L9kXoktw_YvE_dQWzTwF-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-9" value="fastapi localhost" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="121" y="347" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-11" value="fastapi web 183.15.17.12" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="-111" y="360" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-15" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="L9kXoktw_YvE_dQWzTwF-11" target="L9kXoktw_YvE_dQWzTwF-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-71" y="229" as="sourcePoint" />
+            <mxPoint x="-21" y="179" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-16" value="10.1&quot; Планшет DEXP Ursus B21 3G 16 ГБ черный&amp;nbsp;1280x800, IPS, 4x1.3 ГГц, 1 ГБ, 5000 мА*ч, Android 10.x&amp;nbsp; &amp;nbsp;49 990&amp;nbsp;тг&lt;br&gt;7&quot; Планшет DEXP Ursus B27 3G 16 ГБ черный 1024x600, IPS, 4x1.3 ГГц, 1 ГБ, 2500 мА*ч, Android 11.x&amp;nbsp; &amp;nbsp;24 990 тг&lt;br&gt;&lt;br&gt;Сим карта 5 000 тг/месяц&lt;br&gt;&lt;br&gt;https://www.dns-shop.kz/product/39602be7f2493332/101-planset-dexp-ursus-b21-3g-16-gb-cernyj/" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="-397" y="-71" width="692" height="93" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-17" value="1 ядро / 1 RAM / 20 SSD&amp;nbsp; &amp;nbsp;2&amp;nbsp;800&amp;nbsp;тг/мес&lt;br&gt;&lt;br&gt;2 ядро / 2 RAM / 40 SSD&amp;nbsp; &amp;nbsp;5 700&lt;span style=&quot;border-color: var(--border-color); font-size: 14px;&quot;&gt;&amp;nbsp;тг/мес&lt;br&gt;&lt;/span&gt;&lt;br&gt;&lt;font&gt;доменное имя polykgp.site&amp;nbsp;&lt;/font&gt;3000 тг/год&lt;br&gt;&lt;br&gt;&lt;font&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;https://www.ps.kz/hosting/vps&lt;/span&gt;&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontFamily=Helvetica;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="-279" y="469" width="456" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-18" value="мгновенный вес" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="-445" y="90" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-19" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-109" y="96.5" as="sourcePoint" />
+            <mxPoint x="-324" y="202" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-20" value="рейсы" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="-442" y="201" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="L9kXoktw_YvE_dQWzTwF-21" value="предиктивная аналитика" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="-348" y="234" width="80" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
