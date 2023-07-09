@@ -4,23 +4,23 @@ from django_app import views
 
 urlpatterns = [
     # events
-    re_path(r"^events/drainage/$", views.f_events_drainage),
-    re_path(r"^events/dumptrucks/$", views.f_events_dumptrucks),
-    re_path(r"^events/shovels/$", views.f_events_dumptrucks),
-    re_path(r"^events/auxes/$", views.f_events_dumptrucks),
+    re_path(r"^events/drainage/$", views.f_events_drainage),  # "/api/events/drainage"
+    re_path(r"^events/dumptrucks/$", views.f_events_dumptrucks),  # "/api/events/drainage"
+    re_path(r"^events/shovels/$", views.f_events_dumptrucks),  # "/api/events/drainage"
+    re_path(r"^events/auxes/$", views.f_events_dumptrucks),  # "/api/events/drainage"
 
     re_path(r"^rational/$", views.f_rational),
 
     # analyse
-    re_path(r"^analyse/vehtrips/$", views.f_analyse_predictive),
-    re_path(r"^pto/analytic_tech/$", views.f_pto_analytic_tech),
-    re_path(r"^pto/operative_stoppages/$", views.f_pto_operative_stoppages),
+    re_path(r"^analyse/vehtrips/$", views.f_analyse_predictive),  # "/api/analyse/predictive"
+    re_path(r"^pto/analytic_tech/$", views.f_pto_analytic_tech),  # "/api/pto/analytic_tech"
+    re_path(r"^pto/operative_stoppages/$", views.f_pto_operative_stoppages),  # "/api/pto/operative_stoppages"
 
     # reports
-    re_path(r"^reports/operuchet/dumptrucks/$", views.f_reports_operuchet_dumptrucks),
-    re_path(r"^reports/avg_speed/$", views.f_reports_avg_speed),
-    re_path(r"^reports/time_wait_to_load/$", views.f_reports_time_wait_to_load),
-    re_path(r"^reports/errors_asd/$", views.f_reports_errors_asd),
+    re_path(r"^reports/operuchet/dumptrucks/$", views.f_reports_operuchet_dumptrucks),  # "/api/reports/operuchet_dumptrucks"
+    re_path(r"^reports/avg_speed/$", views.f_reports_avg_speed),  # "/api/atc/avg_speed"
+    re_path(r"^reports/time_wait_to_load/$", views.f_reports_time_wait_to_load),  # "/api/reports/time_wait_to_load"
+    re_path(r"^reports/errors_asd/$", views.f_reports_errors_asd),  # "/api/reports/time_wait_to_load"
 
     # todo #############################################################################################################
     re_path(r"^users/captcha/$", views.f_users_captcha),
