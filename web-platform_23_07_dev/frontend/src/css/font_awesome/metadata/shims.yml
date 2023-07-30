@@ -476,9 +476,9 @@ soccer-ball-o:
   prefix: far
   name: futbol
 sort-alpha-asc:
-  name: arrow-down-a-z
+  name: arrow-down-data-z
 sort-alpha-desc:
-  name: arrow-down-z-a
+  name: arrow-down-z-data
 sort-amount-asc:
   name: arrow-down-short-wide
 sort-amount-desc:

@@ -17,7 +17,7 @@ def decorator1(is_auth=False):
             if is_auth:
                 raise Exception("Need Authentification!")
             response = await f(request, *args, **kwargs)
-            async with aiofiles.open('static/log.txt', mode='a', encoding="utf-8") as file:
+            async with aiofiles.open('static/log.txt', mode='data', encoding="utf-8") as file:
                 text = f"[{str(datetime.datetime.now())[0:-5:1]}] ({round((time.perf_counter_ns() - time_start_func) / 1000000, 5)} s) {request.url} ({request.method})"
                 print(f"\n{text}")
                 await file.write(f"{text}\n")

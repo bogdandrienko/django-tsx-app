@@ -38,18 +38,18 @@
 }
 
 .custom_body_1{
-    min-height: 100vh;
+    /*min-height: 100vh;*/
     margin: 0 !important;
     padding: 0 !important;
     background-color: cyan;
-    background-image: url("../../public/static/img/global_background_image2.jpg");
+    background-image: url("../../public/static/img/global_background_image3.jpg");
     background-attachment: fixed;
     background-size: cover;
     font-family: Zen Kaku Gothic Antique, sans-serif !important;
 }
 
 .custom_main_1{
-    min-height: 75vh;
+    min-height: 81vh;
     text-align: center;
     margin-right: auto;
     margin-left: auto;
@@ -460,4 +460,28 @@
 
 .custom_offcanvas_1 {
     height: 30vh !important;
+}
+
+.left-text {
+  writing-mode: vertical-lr;
+}
+
+.right-text {
+  writing-mode: vertical-rl;
+}
+
+.size-width-25 {
+    width: 25px;
+}
+
+.size-height-25 {
+    height: 25px;
+}
+
+.size-width-50 {
+    width: 50px;
+}
+
+.size-height-50 {
+    height: 50px;
 }

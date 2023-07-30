@@ -37,7 +37,7 @@ alert:
   label: Alert
 alphabet:
   icons:
-    - a
+    - data
     - b
     - c
     - circle-h
@@ -107,13 +107,13 @@ arrows:
     - arrow-down
     - arrow-down-1-9
     - arrow-down-9-1
-    - arrow-down-a-z
+    - arrow-down-data-z
     - arrow-down-long
     - arrow-down-short-wide
     - arrow-down-up-across-line
     - arrow-down-up-lock
     - arrow-down-wide-short
-    - arrow-down-z-a
+    - arrow-down-z-data
     - arrow-left
     - arrow-left-long
     - arrow-pointer
@@ -131,14 +131,14 @@ arrows:
     - arrow-up
     - arrow-up-1-9
     - arrow-up-9-1
-    - arrow-up-a-z
+    - arrow-up-data-z
     - arrow-up-from-bracket
     - arrow-up-long
     - arrow-up-right-dots
     - arrow-up-right-from-square
     - arrow-up-short-wide
     - arrow-up-wide-short
-    - arrow-up-z-a
+    - arrow-up-z-data
     - arrows-down-to-line
     - arrows-left-right
     - arrows-left-right-to-line

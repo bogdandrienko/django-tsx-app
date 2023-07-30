@@ -2,7 +2,7 @@ export const ModalConfirm1 = ({
   isModalVisible = false,
   // @ts-ignore
   setIsModalVisible,
-  description = "You are a seriously?",
+  description = "You are data seriously?",
   // @ts-ignore
   callback,
 }) => {

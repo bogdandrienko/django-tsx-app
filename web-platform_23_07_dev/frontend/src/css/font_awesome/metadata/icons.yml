@@ -839,7 +839,7 @@ arrow-down-a-z:
     - 5.9.0
     - 6.0.0-beta1
     - 6.2.0
-  label: Arrow down a z
+  label: Arrow down data z
   search:
     terms: []
   styles:
@@ -939,7 +939,7 @@ arrow-down-z-a:
     - 5.9.0
     - 6.0.0-beta1
     - 6.2.0
-  label: Arrow down z a
+  label: Arrow down z data
   search:
     terms: []
   styles:
@@ -1300,7 +1300,7 @@ arrow-up-a-z:
     - 5.9.0
     - 6.0.0-beta1
     - 6.2.0
-  label: Arrow up a z
+  label: Arrow up data z
   search:
     terms: []
   styles:
@@ -1441,7 +1441,7 @@ arrow-up-z-a:
     - 5.9.0
     - 6.0.0-beta1
     - 6.2.0
-  label: Arrow up z a
+  label: Arrow up z data
   search:
     terms: []
   styles:
@@ -6573,7 +6573,7 @@ cloud-meatball:
     - 5.5.0
     - 6.0.0-beta1
     - 6.2.0
-  label: Cloud with (a chance of) Meatball
+  label: Cloud with (data chance of) Meatball
   search:
     terms: []
   styles:

@@ -12,7 +12,7 @@ def logging(request: Request):
     if main.DEBUG:
         print(f"\n{text}")
     if main.LOGGING:
-        with open("static/log.txt", "a", encoding="utf-8") as file:
+        with open("static/log.txt", "data", encoding="utf-8") as file:
             file.write(text)
 
 

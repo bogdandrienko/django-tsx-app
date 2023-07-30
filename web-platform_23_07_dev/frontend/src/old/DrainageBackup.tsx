@@ -5,7 +5,7 @@ import axios from "axios";
 
 // TODO custom modules /////////////////////////////////////////////////////////////////////////////////////////////////
 
-import * as base from "../components/ui/base";
+import * as base from "../components/ui/bases";
 import * as hooks from "../components/hooks";
 import * as constants from "../components/constants";
 

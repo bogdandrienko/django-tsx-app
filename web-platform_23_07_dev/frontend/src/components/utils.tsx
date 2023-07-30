@@ -8,6 +8,7 @@ import { FormEvent, MouseEvent } from "react";
 // TODO custom modules /////////////////////////////////////////////////////////////////////////////////////////////////
 
 import * as constants from "../components/constants";
+import { ar } from "@faker-js/faker";
 
 // TODO export /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,10 @@ export class RegularExpression {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
   }
   static VeryStrongPassword() {
-    return new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})", "g");
+    return new RegExp(
+      "^(?=.*[data-z])(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})",
+      "g"
+    );
   }
   static GetRegexType({
     numbers = false,
@@ -53,7 +57,7 @@ export class RegularExpression {
       }
       if (latin) {
         if (onlyLowerLetters) {
-          regex = regex + "a-z";
+          regex = regex + "data-z";
         } else {
           regex = regex + "A-Za-z";
         }
@@ -197,7 +201,7 @@ export function ConstructorAction1(
       form = {
         ...form,
         // @ts-ignore
-        "Action-Type": constantStore.data.split("_")[0],
+        // "Action-Type": constantStore.data.split("_")[0],
       };
 
       // add '/tasks' + '/id'
@@ -245,7 +249,7 @@ export function ConstructorAction1(
         }
       }
 
-      console.log("formData: ", formData);
+      // console.log("formData: ", formData);
 
       // add Authorization to headers
       let config = {};
@@ -284,7 +288,7 @@ export function ConstructorAction1(
 
       const { data } = await axios(config);
 
-      console.log("data", data);
+      // console.log("data", data);
 
       if (data.response) {
         dispatch({
@@ -543,6 +547,29 @@ export function deleteCookie(name: string) {
   document.cookie = name + "=; Max-Age=0";
 }
 
+export function arrayToPages(arr: any, limitByPage: number = 10) {
+  let result: any[][] = [];
+  let targetArr = [...arr];
+  targetArr = targetArr.reverse();
+  while (targetArr.length > 0) {
+    let inline_matrix: any[] = [];
+    while (inline_matrix.length < limitByPage && targetArr.length > 0) {
+      let val = targetArr.pop();
+      if (val !== undefined) {
+        inline_matrix.push(val);
+      } else {
+        break;
+      }
+    }
+    result.push(inline_matrix);
+  }
+  return result;
+}
+
+export function getNormalDate(time: string) {
+  return `${time.split("T")[0]} ${time.split("T")[1].split("+")[0]}`;
+}
+
 export function getNormalTime(time: string) {
   return `${time.split("T")[0]} ${time.split("T")[1].split("+")[0]}`;
 }
@@ -582,4 +609,24 @@ export function getCurrentDateForForm() {
   let ret = `${yyyy}-${mm}-${dd}`;
 
   return ret;
+}
+
+// @ts-ignore
+export function getAllAuxes(
+  arrExclude: string[] = ["27", "219", "777", "2222", "3333"]
+): { tech: string; type: string }[] {
+  const list: {
+    list: { tech: string; type: string }[];
+  } = require("../data/auxes.json");
+  return list.list.filter((item) => !arrExclude.includes(item.tech));
+}
+
+// @ts-ignore
+export function getAllDumptrucks(
+  arrExclude: string[] = ["100"]
+): { tech: string; type: string }[] {
+  const list: {
+    list: { tech: string; type: string }[];
+  } = require("../data/dumptrucks.json");
+  return list.list.filter((item) => !arrExclude.includes(item.tech));
 }

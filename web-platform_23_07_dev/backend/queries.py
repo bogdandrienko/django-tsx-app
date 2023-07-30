@@ -1,3 +1,86 @@
+class Target:
+    @staticmethod
+    def report_weight_loads() -> str:
+        return """
+SELECT TRUNC(vt.TIMELOAD) TASKDATE, 
+       GETCURSHIFTNUM(1, vt.TIMELOAD) TASKSHIFT, 
+       vt.SHOVID, 
+       drivers_shov_t.FAMNAME 
+       || ' ' 
+       || drivers_shov_t.FIRSTNAME 
+       || ' ' 
+       || drivers_shov_t.SECNAME AS shovdriver, 
+       vt.VEHID, 
+       drivers_t.FAMNAME 
+       || ' ' 
+       || drivers_t.FIRSTNAME 
+       || ' ' 
+       || drivers_t.SECNAME      AS vehdriver, 
+       vt.AREA, 
+       vt.WORKTYPE, 
+       vt.UNLOADID, 
+       vt.TIMELOAD, 
+       vt.AVSPEED, 
+       vt.WEIGHT 
+FROM   VEHTRIPS vt 
+       left join DUMPTRUCKS trucks_t 
+              ON vt.VEHID = trucks_t.VEHID 
+       left join SHOVELS shovels_t 
+              ON shovels_t.SHOVID = vt.SHOVID 
+       left join SHIFTTASKS tasks_t 
+              ON vt.VEHID = tasks_t.VEHID 
+                 AND tasks_t.TASKDATE = TRUNC(vt.TIMELOAD) 
+                 AND tasks_t.SHIFT = GETCURSHIFTNUM(1, vt.TIMELOAD) 
+       left join DRIVERS drivers_t 
+              ON tasks_t.TABELNUM = drivers_t.TABELNUM 
+       left join SHOV_SHIFT_TASKS tasks_shov_t 
+              ON vt.SHOVID = tasks_shov_t.SHOV_ID 
+                 AND tasks_shov_t.TASK_DATE = TRUNC(vt.TIMELOAD) 
+                 AND tasks_shov_t.SHIFT = GETCURSHIFTNUM(1, vt.TIMELOAD) 
+       left join SHOVDRIVERS drivers_shov_t 
+              ON tasks_shov_t.TABEL_NUM = drivers_shov_t.TABELNUM 
+WHERE  vt.TIMEUNLOAD BETWEEN GETPREDEFINEDTIMEFROM('за указанную смену', :param_shift_from, :param_date_from) AND GETPREDEFINEDTIMETO('за указанную смену', :param_shift_to, :param_date_to)
+       AND ( vt.WEIGHT <= :param_weight_low 
+              OR vt.WEIGHT >= :param_weight_high ) and vt.shovid != 'Неопр.'
+ORDER  BY TIMELOAD ASC 
+"""
+
+    @staticmethod
+    def monitoring_weight_loads() -> str:
+        return """
+SELECT t1.*, 
+       vd.FAMNAME 
+       || ' ' 
+       || vd.FIRSTNAME 
+       || ' ' 
+       || vd.SECNAME 
+       || ' ' 
+       || vd.TABELNUM FIO 
+FROM   (SELECT vt.VEHID, 
+               vt.WORKTYPE, 
+               vt.TIMELOAD, 
+               vt.WEIGHT, 
+               ROUND(DECODE(NVL(vt.WEIGHT, 0), 0, 0, 
+                                               vt.WEIGHT * 1 / NVL(DECODE(vt.WRATE, 0, vt.WEIGHT,
+                                                                                    vt.WRATE), vt.WEIGHT) * vt.VRATE), 3) AS Volume,
+               TO_CHAR(vt.TIMELOAD, 'HH24')                                                                               HOUR_LOAD,
+               NVL(vt.BUCKETCOUNT, -1)                                                                                    bucketcount
+        FROM   VEHTRIPS vt 
+        WHERE  vt.TIMEUNLOAD BETWEEN :param_shift_begin AND :param_shift_end 
+               AND ( vt.WEIGHT <= :param_low OR vt.WEIGHT >= :param_high ) 
+               and vt.SHOVID = :param_shov_id
+        ORDER  BY TIMELOAD ASC) t1 
+       inner join SHIFTTASKS st 
+               ON st.TASKDATE = :param_date 
+                  AND st.SHIFT = :param_shift 
+                  AND st.VEHID = t1.VEHID 
+       inner join DRIVERS vd 
+               ON vd.TABELNUM = st.TABELNUM 
+       inner join DUMPTRUCKS d 
+               ON d.VEHID = st.VEHID 
+"""
+
+
 def query_vehtrips_status() -> str:
     return """
 
@@ -32,6 +115,114 @@ WHERE  CONTROL_ID = 507
        AND FUEL2_VALUE NOT IN( 65535, 0, 14807 ) 
        AND ( TIME BETWEEN SYSDATE - ( 1 / 24 / 60 * :timeDiff ) AND SYSDATE ) 
 ORDER  BY TIME DESC 
+
+
+"""
+
+
+def query_atc_get_aux_stoppages() -> str:
+    return """
+
+
+
+SELECT 
+    TIME,
+    SPEED,
+    FUEL,
+    AUXID TECH
+FROM   AUXEVENTARCHIVE t1
+WHERE  t1.AUXID = :param_select_tech_id
+    AND ( 
+    TIME BETWEEN GETPREDEFINEDTIMEFROM('за указанную смену', :param_shift, :param_date) 
+    AND GETPREDEFINEDTIMETO('за указанную смену', :param_shift, :param_date) 
+    )
+ORDER  BY TIME DESC
+
+
+
+"""
+
+
+def query_atc_get_veh_stoppages() -> str:
+    return """
+
+
+
+SELECT 
+    TIME,
+    SPEED,
+    FUEL,
+    VEHID TECH
+FROM   EVENTSTATEARCHIVE t1
+WHERE  t1.VEHID = :param_select_tech_id
+    AND ( 
+    TIME BETWEEN GETPREDEFINEDTIMEFROM('за указанную смену', :param_shift, :param_date) 
+    AND GETPREDEFINEDTIMETO('за указанную смену', :param_shift, :param_date) 
+    )
+ORDER  BY TIME DESC
+
+
+
+"""
+
+
+def query_get_shovel_driver_by_taskdate_and_shift() -> str:
+    return """
+
+SELECT sd.FAMNAME 
+       || ' ' 
+       || sd.FIRSTNAME 
+       || ' ' 
+       || sd.SECNAME 
+       || ' ' 
+       || sd.TABELNUM AS FIO 
+FROM   SHOV_SHIFT_TASKS st 
+       inner join SHOVDRIVERS sd 
+               ON st.TABEL_NUM = sd.TABELNUM 
+       inner join SHOVELS s 
+               ON st.SHOV_ID = s.SHOVID 
+WHERE  st.TASK_DATE = :param_date 
+       AND st.SHIFT = :param_shift 
+       AND st.SHOV_ID = :param_shov_id 
+ORDER  BY FIO ASC 
+
+"""
+
+
+def query_get_shovels_volumes_by_hours() -> str:
+    return """
+
+
+
+SELECT WORKTYPE, 
+       SUM(VOLUME), 
+       SUM(1) count 
+FROM   (SELECT TRIPCOUNTER, 
+               VEHID, 
+               SHOVID, 
+               UNLOADID, 
+               WORKTYPE, 
+               TO_CHAR(TIMELOAD, 'HH24')                                                                                  HOUR_LOAD,
+               TIMELOAD, 
+               TIMEUNLOAD, 
+               MOVETIME, 
+               WEIGHT, 
+               NVL(BUCKETCOUNT, -1)                                                                                       bucketcount,
+               AVSPEED, 
+               LENGTH, 
+               UNLOADLENGTH, 
+               LOADHEIGHT, 
+               UNLOADHEIGHT, 
+               ROUND(DECODE(NVL(vt.WEIGHT, 0), 0, 0, 
+                                               vt.WEIGHT * 1 / NVL(DECODE(vt.WRATE, 0, vt.WEIGHT,
+                                                                                    vt.WRATE), vt.WEIGHT) * vt.VRATE), 3) AS Volume
+        FROM   VEHTRIPS vt 
+        WHERE  vt.TIMEUNLOAD BETWEEN GETPREDEFINEDTIMEFROM('за указанную смену', GETCURSHIFTNUM(0, SYSDATE), GETCURSHIFTDATE(0, SYSDATE)) AND GETPREDEFINEDTIMETO('за указанную смену', GETCURSHIFTNUM(0, SYSDATE), GETCURSHIFTDATE(0, SYSDATE))
+        ORDER  BY VEHID ASC, 
+                  TIMELOAD ASC) 
+GROUP  BY WORKTYPE 
+ORDER  BY WORKTYPE ASC 
+
 
 
 """
@@ -486,7 +677,7 @@ FROM   (SELECT s.VEHID,
                              AND TRIM(UPPER (WORKTYPE)) NOT LIKE ( '%ВСП%' )
                              AND TRIM(UPPER (WORKTYPE)) NOT LIKE ( '%СНЕГ%' ) )
                        AND ( B.TECHID = 'Все'
-                              OR VEHID = B.TECHID )
+                              OR VEHID = B.TECHID ) and (AVSPEED > 0 and AVSPEED < 70)
                 ORDER  BY LENGTH(VEHID),
                           VEHID,
                           TIMELOAD) s

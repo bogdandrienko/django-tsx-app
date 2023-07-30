@@ -89,6 +89,103 @@ export const user = {
   ),
 };
 
+export const stoppages = {
+  stoppagesReportAuxDvsStore: utils.ConstructorSlice1(
+    "stoppagesReportAuxDvsStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}stoppages/report/aux_dvs`,
+            constants.HttpMethods.GET(),
+            120000,
+            utils.ConstantConstructor1("stoppagesReportAuxDvsStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+  stoppagesReportVehDvsStore: utils.ConstructorSlice1(
+    "stoppagesReportVehDvsStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}stoppages/report/veh_dvs`,
+            constants.HttpMethods.GET(),
+            120000,
+            utils.ConstantConstructor1("stoppagesReportVehDvsStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+};
+export const target = {
+  targetReportWeightLoadsReadListStore: utils.ConstructorSlice1(
+    "targetReportWeightLoadsReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}target/report/weight_loads`,
+            constants.HttpMethods.GET(),
+            120000,
+            utils.ConstantConstructor1("targetReportWeightLoadsReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+  targetMonitoringWeightLoadsReadListStore: utils.ConstructorSlice1(
+    "targetMonitoringWeightLoadsReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}target/monitoring/weight_loads`,
+            constants.HttpMethods.GET(),
+            60000,
+            utils.ConstantConstructor1(
+              "targetMonitoringWeightLoadsReadListStore"
+            ),
+            false
+          )
+        );
+      };
+    }
+  ),
+  targetReportAvgSpeedReadListStore: utils.ConstructorSlice1(
+    "targetReportAvgSpeedReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}target/report/avg_speed`,
+            constants.HttpMethods.GET(),
+            120000,
+            utils.ConstantConstructor1("targetReportAvgSpeedReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+};
+
 export const events = {
   drainageReadListStore: utils.ConstructorSlice1(
     "drainageReadListStore",
@@ -144,6 +241,42 @@ export const events = {
       };
     }
   ),
+  atcAuxStoppagesReadListStore: utils.ConstructorSlice1(
+    "atcAuxStoppagesReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}atc/aux_stoppages`,
+            constants.HttpMethods.GET(),
+            300000,
+            utils.ConstantConstructor1("atcAuxStoppagesReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
+  atcVehStoppagesReadListStore: utils.ConstructorSlice1(
+    "atcVehStoppagesReadListStore",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}atc/veh_stoppages`,
+            constants.HttpMethods.GET(),
+            30000,
+            utils.ConstantConstructor1("atcVehStoppagesReadListStore"),
+            false
+          )
+        );
+      };
+    }
+  ),
 };
 
 export const analyse = {
@@ -175,7 +308,7 @@ export const analyse = {
             { ...args.form },
             `${constants.SERVER_HOST_AND_PORT_CONSTANT}pto/analytic_tech`,
             constants.HttpMethods.GET(),
-            10000,
+            20000,
             utils.ConstantConstructor1("tripsAnalyticListStore"),
             false
           )

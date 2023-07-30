@@ -1026,7 +1026,7 @@ arrow-down-a-z:
     pro:
       - family: classic
         style: solid
-  label: Arrow down a z
+  label: Arrow down data z
   unicode: f15d
   voted: false
 arrow-down-long:
@@ -1144,7 +1144,7 @@ arrow-down-z-a:
     pro:
       - family: classic
         style: solid
-  label: Arrow down z a
+  label: Arrow down z data
   unicode: f881
   voted: false
 arrow-left:
@@ -1562,7 +1562,7 @@ arrow-up-a-z:
     pro:
       - family: classic
         style: solid
-  label: Arrow up a z
+  label: Arrow up data z
   unicode: f15e
   voted: false
 arrow-up-from-bracket:
@@ -1730,7 +1730,7 @@ arrow-up-z-a:
     pro:
       - family: classic
         style: solid
-  label: Arrow up z a
+  label: Arrow up z data
   unicode: f882
   voted: false
 arrows-down-to-line:
@@ -7876,7 +7876,7 @@ cloud-meatball:
     pro:
       - family: classic
         style: solid
-  label: Cloud with (a chance of) Meatball
+  label: Cloud with (data chance of) Meatball
   unicode: f73b
   voted: false
 cloud-moon:

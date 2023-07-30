@@ -17,7 +17,7 @@ def drf_decorator(auth=True) -> any:
             if auth:
                 raise Exception("Need Authentification!")
             response = func_controller(_request)
-            with open('static/log.txt', mode='a', encoding="utf-8") as file:
+            with open('static/log.txt', mode='data', encoding="utf-8") as file:
                 text = f"[{str(datetime.datetime.now())[0:-5:1]}] ({round((time.perf_counter_ns() - time_start_func) / 1000000, 5)} s) ({_request.method})"
                 print(f"\n{text}")
                 file.write(f"{text}\n")
