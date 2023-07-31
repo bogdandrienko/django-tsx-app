@@ -41,7 +41,7 @@ def index1():  # sync view(controller)
 
 @app.get("/")
 async def index2():  # async view(controller)
-    await asyncio.sleep(1.0)
+    await asyncio.sleep(1.0)  # всё нужно асинхронное - aiofiles / aioredis / aiosqlite / aiopg ...
     return "index1"
 
 
