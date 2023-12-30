@@ -8,13 +8,14 @@ function isDev() {
     window.location.host === "127.0.0.1:3000" ||
     window.location.host === "localhost:3000"
   ) {
-    return "http://127.0.0.1:8000/api/"; // todo DEV
+    return "http://127.0.0.1:82/api/"; // todo DEV
   } else {
     return "/api/"; // todo PROD
   }
 }
 
 export const SERVER_HOST_AND_PORT_CONSTANT = isDev();
+export const IS_CENTR_MONITORING = true;
 
 export class HttpMethods {
   static GET() {

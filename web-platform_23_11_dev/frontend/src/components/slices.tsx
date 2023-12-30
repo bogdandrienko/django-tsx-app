@@ -17,6 +17,26 @@ export function ConnectReducer1(name: string, reducer: object) {
   reducers[name] = reducer;
 }
 
+export const centr = {
+  centrMonitoringAsm: utils.ConstructorSlice1(
+    "centrMonitoringAsm",
+    ConnectReducer1,
+    function ({ ...args }) {
+      return async function (dispatch: Dispatch<any>) {
+        dispatch(
+          utils.ConstructorAction1(
+            { ...args.form },
+            `${constants.SERVER_HOST_AND_PORT_CONSTANT}communicator`, // ?param_subsystem=asm
+            constants.HttpMethods.GET(),
+            60000,
+            utils.ConstantConstructor1("centrMonitoringAsm"),
+            false
+          )
+        );
+      };
+    }
+  ),
+};
 export const events = {
   eventsMonitoringDrainageStore: utils.ConstructorSlice1(
     "eventsMonitoringDrainageStore",

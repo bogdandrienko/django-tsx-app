@@ -1,0 +1,28 @@
+Ссылка для подачи:
+https://kgp.lol/idea/create/
+
+Ссылка для экспорта(xlsx):
+https://kgp.lol/idea/export/
+
+Ссылка для удаления (админка):
+https://kgp.lol/admin/
+
+Данные для входа:
+poly_kgp@mail.ru
+@Qwerty!123
+
+
+##################
+
+почта:
+poly_kgp@mail.ru
+@Qwerty!123
+
+pythonanywhere:
+poleznoe
+poly_kgp@mail.ru
+@Qwerty!123
+
+admin-panel:
+poly_kgp@mail.ru
+@Qwerty!123

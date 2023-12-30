@@ -6,6 +6,8 @@ import sqlite3
 import threading
 import time
 from functools import wraps
+from typing import Coroutine
+
 import aiofiles
 import openpyxl
 import oracledb
@@ -38,6 +40,22 @@ class CacheServer:
         value = self.data.get(key, None)
         if value is None and query:
             value = query()()
+            self.set(key=key, value=value, timeout=timeout)
+
+        return value
+
+    async def async_get(
+        self,
+        key: str = None,
+        request: Request = None,
+        query: Coroutine = None,
+        timeout: float = 1.0,
+    ):
+        if key is None:
+            key = f"{request.url}_{request.method}_{''.join([str(x) for x in request.query_params.values()])}"
+        value = self.data.get(key, None)
+        if value is None and query:
+            value = await query()()
             self.set(key=key, value=value, timeout=timeout)
 
         return value

@@ -1,7 +1,7 @@
 # TODO download modules ##############################################################################################################################
-import asyncio
 import datetime
 import hashlib
+import json
 import math
 import os
 import re
@@ -17,6 +17,8 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from starlette.responses import HTMLResponse, RedirectResponse, JSONResponse
 from starlette.templating import Jinja2Templates
+import asyncio
+import aiosqlite
 
 # TODO custom modules ################################################################################################################################
 from . import constants, utils, queries, debug
@@ -47,10 +49,10 @@ class Events:
                 many=False,
             )
             __rows_instances = {
-                "maxtime": __rows_raw[0],
-                "mintime": __rows_raw[1],
-                "maxfuel": __rows_raw[2],
-                "minfuel": __rows_raw[3],
+                "maxtime": str(__rows_raw[0]),
+                "mintime": str(__rows_raw[1]),
+                "maxfuel": int(__rows_raw[2]),
+                "minfuel": int(__rows_raw[3]),
                 "diffuel": int(__rows_raw[4]),
                 "difval": int(__rows_raw[5]),
             }
@@ -1947,10 +1949,10 @@ class Base:
     @router.get("/api", response_class=JSONResponse)
     @utils.decorator(need_auth=False)
     async def api(request: Request):
-        # debug.get_tech_message_delay()
-        import requests
-
-        bot_token = "6619466319:AAFQ5XcFnDIR1PWCVrT4GONq6LiD_ceYkZk"
+        debug.get_tech_message_delay()
+        # import requests
+        #
+        # bot_token = "6619466319:AAFQ5XcFnDIR1PWCVrT4GONq6LiD_ceYkZk"
         # message_text = "Всем\nпривет"
         # r = requests.post(
         #     url=f"https://api.telegram.org/bot{bot_token}/sendMessage",
@@ -1958,22 +1960,22 @@ class Base:
         # )
         # print(r.status_code)
 
-        while True:
-            date_time = datetime.datetime.now().strftime("%d.%m.%Y %H")
-            message_text = f"""Данные за {date_time}:00
-Рейсы: 40 (ск:12 | рыхл:8 | руд:7)
-Объём:  (ск:12 | рыхл:8 | руд:7)
-
-СКОРОСТЬ:
-Ср.скорость: 18.6 (груж:16.6 | порожн:20.2)
-Лучший(145): 20.6 (груж:16.6 | порожн:20.2)
-Худший(132): 18.6 (груж:16.6 | порожн:20.2)
-"""
-            r = requests.post(
-                url=f"https://api.telegram.org/bot{bot_token}/sendMessage",
-                data={"chat_id": "1289279426", "text": message_text},
-            )
-            await asyncio.sleep(60 * 60 * 0.5)
+        #         while True:
+        #             date_time = datetime.datetime.now().strftime("%d.%m.%Y %H")
+        #             message_text = f"""Данные за {date_time}:00
+        # Рейсы: 40 (ск:12 | рыхл:8 | руд:7)
+        # Объём:  (ск:12 | рыхл:8 | руд:7)
+        #
+        # СКОРОСТЬ:
+        # Ср.скорость: 18.6 (груж:16.6 | порожн:20.2)
+        # Лучший(145): 20.6 (груж:16.6 | порожн:20.2)
+        # Худший(132): 18.6 (груж:16.6 | порожн:20.2)
+        # """
+        #             r = requests.post(
+        #                 url=f"https://api.telegram.org/bot{bot_token}/sendMessage",
+        #                 data={"chat_id": "1289279426", "text": message_text},
+        #             )
+        #             await asyncio.sleep(60 * 60 * 0.5)
 
         # chats = requests.get(f"https://api.telegram.org/bot{bot_token}/getUpdates").json()
         # print("chats: ", chats)
@@ -1987,12 +1989,84 @@ class Base:
         return {"data": f"OK"}
 
     @staticmethod
+    @router.get("/api/communicator", response_class=JSONResponse)
+    @utils.decorator(need_auth=False)
+    async def get_communicator(request: Request):
+        async def __query() -> dict:
+            async with aiosqlite.connect("database_centr.db") as connection:
+                cursor = await connection.cursor()
+                query1 = """
+CREATE TABLE IF NOT EXISTS messages (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+subsystem TEXT UNIQUE,
+message TEXT,
+date_time_subsystem DATETIME,
+date_time_server DATETIME
+)
+"""
+                await cursor.execute(query1)
+                await connection.commit()
+                query2 = """
+SELECT subsystem, message, date_time_subsystem, date_time_server  
+FROM messages
+"""
+                async with connection.execute(query2) as cursor:
+                    data = await cursor.fetchall()
+                    json_data = []
+                    for i in data:
+                        json_data.append(
+                            {
+                                "subsystem": str(i[0]),
+                                "message": json.loads(str(i[1])),
+                                "date_time_subsystem": str(i[2]),
+                                "date_time_server": str(i[3]),
+                            }
+                        )
+                    group_by_subsystem = {}
+                    for j in json_data:
+                        group_by_subsystem[j["subsystem"]] = j
+                    await asyncio.sleep(1)
+                    print(f"group_by_subsystem\n: {group_by_subsystem}")
+                    return {"data": group_by_subsystem}
+
+        return {"response": await constants.cache.async_get(query=lambda: __query, request=request, timeout=5)}
+
+    @staticmethod
     @router.post("/api/communicator", response_class=JSONResponse)
     @utils.decorator(need_auth=False)
     async def post_communicator(request: Request):
+        if str(request.headers.get("Authorization", "")) != "Token=auth_token":
+            raise Exception("Неверный токен доступа!")
+
         form_data = await request.json()
-        messages = form_data["data"]
-        print("messages: ", messages)
+        print(f"form_data\n: {form_data}")
+
+        subsystem = form_data["subsystem"]
+        data = form_data["data"]
+        date_time_subsystem = form_data["date_time_subsystem"]
+        date_time_server = datetime.datetime.now()
+        async with aiosqlite.connect("database_centr.db") as connection:
+            cursor = await connection.cursor()
+            query1 = """
+CREATE TABLE IF NOT EXISTS messages (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+subsystem TEXT UNIQUE,
+message TEXT,
+date_time_subsystem DATETIME,
+date_time_server DATETIME
+)
+"""
+            await cursor.execute(query1)
+            await connection.commit()
+            query2 = """
+INSERT OR REPLACE INTO messages 
+(subsystem, message, date_time_subsystem, date_time_server)
+VALUES 
+(?, ?, ?, ?)
+"""
+            await cursor.execute(query2, (subsystem, json.dumps(data), date_time_subsystem, date_time_server))
+            await connection.commit()
+
         return {"data": "OK"}
 
     @staticmethod
